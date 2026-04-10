@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { Card, Text, Button, IconButton } from "react-native-paper";
 import { styles } from "./styles";
 import { WorkoutExercise } from "../../models/WorkoutExercise";
+import { useTheme } from "react-native-paper";
 
 type Props = {
   item: WorkoutExercise;
@@ -27,6 +28,7 @@ export const WorkoutExerciseCard = ({
   onMoveUp,
   onMoveDown,
 }: Props) => {
+  const theme = useTheme();
   return (
     <Card style={styles.card}>
       <View style={styles.row}>

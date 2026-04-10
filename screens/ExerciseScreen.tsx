@@ -1,23 +1,23 @@
-import React from 'react';
-import { View, FlatList, Alert } from 'react-native';
-import { List } from 'react-native-paper';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { useWorkoutContext } from '../context/WorkoutContext';
+import React from "react";
+import { View, FlatList, Alert } from "react-native";
+import { List } from "react-native-paper";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
+import { useWorkoutContext } from "../context/WorkoutContext";
 
-import { mockVariations } from '../data/mockVariations';
-import { mockExercises } from '../data/mockExercises';
-import { getExerciseFullName } from '../utils/exerciseUtils';
+import { mockVariations } from "../data/mockVariations";
+import { mockExercises } from "../data/mockExercises";
+import { getExerciseFullName } from "../utils/exerciseUtils";
 
-import { WorkoutExercise } from '../models/WorkoutExercise';
-import { ExerciseVariation } from '../models/ExerciseVariation';
-import { WorkoutSet } from '../models/WorkoutSet';
+import { WorkoutExercise } from "../models/WorkoutExercise";
+import { ExerciseVariation } from "../models/ExerciseVariation";
+import { WorkoutSet } from "../models/WorkoutSet";
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Exercise'>;
+type Props = NativeStackScreenProps<RootStackParamList, "Exercise">;
 
 export const ExerciseScreen = ({ route, navigation }: Props) => {
   const { workoutId, muscleGroupId } = route.params;
-  const { addExerciseToWorkout } = useWorkoutContext();
+  const { data, addExerciseToWorkout } = useWorkoutContext();
 
   const filteredVariations = mockVariations.filter((variation) => {
     const exercise = mockExercises.find((e) => e.id === variation.exerciseId);
@@ -34,7 +34,7 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
       ?.exercises.some((ex) => ex.variationId === variation.id);
 
     if (exists) {
-      Alert.alert('Já adicionado', 'Esse exercício já está no treino.');
+      Alert.alert("Já adicionado", "Esse exercício já está no treino.");
       return;
     }
 
@@ -44,7 +44,7 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
         weight: 0,
         reps: 0,
         rir: 0,
-      })
+      }),
     );
 
     const newExercise: WorkoutExercise = {
@@ -54,7 +54,7 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
 
     addExerciseToWorkout(workoutId, newExercise);
 
-    navigation.goBack();
+    navigation.navigate("Workout", { workoutId });
   };
 
   return (

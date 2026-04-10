@@ -27,3 +27,5 @@ export const PROGRESSION_STATUS = {
   NO_VOLUME_INCREASE: 'NO_VOLUME_INCREASE',
   EXCESSIVE_REP_DROP: 'EXCESSIVE_REP_DROP',
 } as const;
+
+export type ProgressionStatus = keyof typeof PROGRESSION_STATUS;
