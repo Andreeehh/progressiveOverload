@@ -6,7 +6,7 @@ import { Workout } from "../../models/Workout";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { HomeScreenCard } from "../../components/HomeScreenCard";
-import { styles } from "./styles";
+import { globalStyles } from "../../theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -45,14 +45,14 @@ export const HomeScreen = ({ navigation }: Props) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={globalStyles.loadingContainer}>
         <Text>Carregando...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       <FlatList
         data={[...data.workouts]
           .filter((w) => !w.isDeleted) // 🔥 não mostra soft deleted
@@ -63,7 +63,7 @@ export const HomeScreen = ({ navigation }: Props) => {
         renderItem={renderItem}
       />
 
-      <FAB icon="plus" style={styles.fab} onPress={handleCreateWorkout} />
+      <FAB icon="plus" style={globalStyles.fab} onPress={handleCreateWorkout} />
     </View>
   );
 };

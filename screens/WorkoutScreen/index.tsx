@@ -1,5 +1,5 @@
 import React from "react";
-import { styles } from "./styles";
+import { globalStyles } from "../../theme";
 import { View, FlatList, Alert } from "react-native";
 import { Text, FAB } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -29,7 +29,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
 
   if (!workout) {
     return (
-      <View style={styles.container}>
+      <View style={globalStyles.container}>
         <Text>Treino não encontrado</Text>
       </View>
     );
@@ -88,8 +88,8 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>
+    <View style={globalStyles.container}>
+      <Text variant="titleLarge" style={globalStyles.title}>
         Treino
       </Text>
 
@@ -99,7 +99,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         renderItem={renderItem}
       />
 
-      <FAB icon="plus" style={styles.fab} onPress={handleAddExercise} />
+      <FAB icon="plus" style={globalStyles.fab} onPress={handleAddExercise} />
     </View>
   );
 };

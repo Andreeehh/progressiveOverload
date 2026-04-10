@@ -1,5 +1,5 @@
 import React from "react";
-import { styles } from "./styles";
+import { globalStyles } from "../../theme";
 import { View, FlatList, Alert } from "react-native";
 import { List } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -59,7 +59,7 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       <FlatList<ExerciseVariation>
         data={filteredVariations}
         keyExtractor={(item) => item.id}

@@ -1,10 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { spacing } from '../../theme';
+import { spacing, globalStyles } from '../../theme';
 
 export const styles = StyleSheet.create({
-  card: {
-    marginBottom: spacing.sm,
-  },
+  card: globalStyles.card,
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

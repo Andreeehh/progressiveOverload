@@ -5,7 +5,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { mockMuscleGroups } from "../../data/mockMuscleGroups";
 import { MuscleGroup } from "../../models/MuscleGroup";
-import { styles } from "./styles";
+import { globalStyles } from "../../theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MuscleGroup">;
 
@@ -13,7 +13,7 @@ export const MuscleGroupScreen = ({ navigation, route }: Props) => {
   const { workoutId } = route.params;
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       <FlatList<MuscleGroup>
         data={mockMuscleGroups}
         keyExtractor={(item) => item.id}
