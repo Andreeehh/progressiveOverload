@@ -1,10 +1,12 @@
 import React from "react";
 import { View, FlatList, Alert } from "react-native";
-import { Card, Text, Button, FAB } from "react-native-paper";
+import { Text, FAB } from "react-native-paper";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 import { Workout } from "../../models/Workout";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
+import { HomeScreenCard } from "../../components/HomeScreenCard";
+import { styles } from "./styles";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -33,46 +35,24 @@ export const HomeScreen = ({ navigation }: Props) => {
     ]);
   };
 
-  const renderItem = ({ item }: { item: Workout }) => {
-    const date = new Date(item.date).toLocaleDateString();
-
-    return (
-      <Card style={{ marginBottom: 10 }}>
-        <Card.Content>
-          <Text variant="titleMedium">Treino</Text>
-          <Text variant="bodyMedium">{date}</Text>
-          <Text variant="bodySmall">{item.exercises.length} exercícios</Text>
-        </Card.Content>
-
-        <Card.Actions>
-          <Button
-            onPress={() =>
-              navigation.navigate("Workout", {
-                workoutId: item.id,
-              })
-            }
-          >
-            Abrir
-          </Button>
-
-          <Button textColor="red" onPress={() => handleRemove(item.id)}>
-            Remover
-          </Button>
-        </Card.Actions>
-      </Card>
-    );
-  };
+  const renderItem = ({ item }: { item: Workout }) => (
+    <HomeScreenCard
+      workout={item}
+      onOpen={(workoutId) => navigation.navigate("Workout", { workoutId })}
+      onRemove={handleRemove}
+    />
+  );
 
   if (loading) {
     return (
-      <View style={{ padding: 20 }}>
+      <View style={styles.loadingContainer}>
         <Text>Carregando...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View style={styles.container}>
       <FlatList
         data={[...data.workouts]
           .filter((w) => !w.isDeleted) // 🔥 não mostra soft deleted
@@ -83,15 +63,7 @@ export const HomeScreen = ({ navigation }: Props) => {
         renderItem={renderItem}
       />
 
-      <FAB
-        icon="plus"
-        style={{
-          position: "absolute",
-          right: 16,
-          bottom: 16,
-        }}
-        onPress={handleCreateWorkout}
-      />
+      <FAB icon="plus" style={styles.fab} onPress={handleCreateWorkout} />
     </View>
   );
 };

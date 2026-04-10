@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { styles } from "./styles";
 import { View, FlatList } from "react-native";
 import { Text, TextInput, Button, Card, FAB } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -53,7 +54,7 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
    */
   const renderItem = ({ item, index }: { item: WorkoutSet; index: number }) => {
     return (
-      <Card style={{ marginBottom: 10 }}>
+      <Card style={styles.card}>
         <Card.Content>
           <Text>Set {index + 1}</Text>
 
@@ -90,15 +91,15 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
 
   if (!exercise) {
     return (
-      <View style={{ padding: 16 }}>
+      <View style={styles.container}>
         <Text>Exercício não encontrado</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text variant="titleLarge" style={{ marginBottom: 16 }}>
+    <View style={styles.container}>
+      <Text variant="titleLarge" style={styles.title}>
         Sets
       </Text>
 
@@ -112,15 +113,7 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
         Salvar treino
       </Button>
 
-      <FAB
-        icon="plus"
-        style={{
-          position: "absolute",
-          right: 16,
-          bottom: 16,
-        }}
-        onPress={addSet}
-      />
+      <FAB icon="plus" style={styles.fab} onPress={addSet} />
     </View>
   );
 };

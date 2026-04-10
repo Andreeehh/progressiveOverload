@@ -29,7 +29,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
 
   if (!workout) {
     return (
-      <View style={{ padding: 16 }}>
+      <View style={styles.container}>
         <Text>Treino não encontrado</Text>
       </View>
     );
