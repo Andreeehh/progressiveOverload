@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { HomeScreen } from "../screens/HomeScreen";
-import { WorkoutScreen } from "../screens/WorkoutScreen/WorkoutScreen";
+import { WorkoutScreen } from "../screens/WorkoutScreen";
 import { ExerciseScreen } from "../screens/ExerciseScreen";
 import { ExerciseDetailScreen } from "../screens/ExerciseDetailScreen";
 import { MuscleGroupScreen } from "../screens/MuscleGroupScreen";

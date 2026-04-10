@@ -2,16 +2,16 @@ import React from "react";
 import { View, FlatList, Alert } from "react-native";
 import { List } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
-import { useWorkoutContext } from "../context/WorkoutContext";
+import { RootStackParamList } from "../../navigation/AppNavigator";
+import { useWorkoutContext } from "../../context/WorkoutContext";
 
-import { mockVariations } from "../data/mockVariations";
-import { mockExercises } from "../data/mockExercises";
-import { getExerciseFullName } from "../utils/exerciseUtils";
+import { mockVariations } from "../../data/mockVariations";
+import { mockExercises } from "../../data/mockExercises";
+import { getExerciseFullName } from "../../utils/exerciseUtils";
 
-import { WorkoutExercise } from "../models/WorkoutExercise";
-import { ExerciseVariation } from "../models/ExerciseVariation";
-import { WorkoutSet } from "../models/WorkoutSet";
+import { WorkoutExercise } from "../../models/WorkoutExercise";
+import { ExerciseVariation } from "../../models/ExerciseVariation";
+import { WorkoutSet } from "../../models/WorkoutSet";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Exercise">;
 

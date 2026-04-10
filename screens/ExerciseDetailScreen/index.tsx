@@ -1,59 +1,37 @@
-import React, { useState } from 'react';
-import { View, FlatList } from 'react-native';
-import {
-  Text,
-  TextInput,
-  Button,
-  Card,
-  FAB,
-} from 'react-native-paper';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { useWorkoutContext } from '../context/WorkoutContext';
-import { WorkoutSet } from '../models/WorkoutSet';
+import React, { useState } from "react";
+import { View, FlatList } from "react-native";
+import { Text, TextInput, Button, Card, FAB } from "react-native-paper";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../navigation/AppNavigator";
+import { useWorkoutContext } from "../../context/WorkoutContext";
+import { WorkoutSet } from "../../models/WorkoutSet";
 
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  'ExerciseDetail'
->;
+type Props = NativeStackScreenProps<RootStackParamList, "ExerciseDetail">;
 
 export const ExerciseDetailScreen = ({ route }: Props) => {
   const { workoutId, variationId } = route.params;
 
-  const {
-    data,
-    updateExerciseSets,
-    checkProgression,
-  } = useWorkoutContext();
+  const { data, updateExerciseSets, checkProgression } = useWorkoutContext();
 
   const workout = data.workouts.find((w) => w.id === workoutId);
 
   const exercise = workout?.exercises.find(
-    (ex) => ex.variationId === variationId
+    (ex) => ex.variationId === variationId,
   );
 
-  const [sets, setSets] = useState<WorkoutSet[]>(
-    exercise?.workoutSets || []
-  );
+  const [sets, setSets] = useState<WorkoutSet[]>(exercise?.workoutSets || []);
 
   /**
    * ➕ adicionar set vazio
    */
   const addSet = () => {
-    setSets((prev) => [
-      ...prev,
-      { weight: 0, reps: 0, rir: 0 },
-    ]);
+    setSets((prev) => [...prev, { weight: 0, reps: 0, rir: 0 }]);
   };
 
   /**
    * ✏️ atualizar set
    */
-  const updateSet = (
-    index: number,
-    field: keyof WorkoutSet,
-    value: number
-  ) => {
+  const updateSet = (index: number, field: keyof WorkoutSet, value: number) => {
     const updated = [...sets];
     updated[index][field] = value;
     setSets(updated);
@@ -67,19 +45,13 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
 
     const result = checkProgression(variationId, sets);
 
-    console.log('Progressão:', result);
+    console.log("Progressão:", result);
   };
 
   /**
    * 🎨 render set
    */
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: WorkoutSet;
-    index: number;
-  }) => {
+  const renderItem = ({ item, index }: { item: WorkoutSet; index: number }) => {
     return (
       <Card style={{ marginBottom: 10 }}>
         <Card.Content>
@@ -90,7 +62,7 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
             keyboardType="numeric"
             value={item.weight.toString()}
             onChangeText={(text: string) =>
-              updateSet(index, 'weight', Number(text))
+              updateSet(index, "weight", Number(text))
             }
           />
 
@@ -99,7 +71,7 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
             keyboardType="numeric"
             value={item.reps.toString()}
             onChangeText={(text: string) =>
-              updateSet(index, 'reps', Number(text))
+              updateSet(index, "reps", Number(text))
             }
           />
 
@@ -108,7 +80,7 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
             keyboardType="numeric"
             value={item.rir.toString()}
             onChangeText={(text: string) =>
-              updateSet(index, 'rir', Number(text))
+              updateSet(index, "rir", Number(text))
             }
           />
         </Card.Content>
@@ -143,7 +115,7 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
       <FAB
         icon="plus"
         style={{
-          position: 'absolute',
+          position: "absolute",
           right: 16,
           bottom: 16,
         }}

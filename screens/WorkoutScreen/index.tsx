@@ -1,24 +1,24 @@
-import React from 'react';
-import { styles } from './styles';
-import { View, FlatList, Alert } from 'react-native';
-import { Text, FAB } from 'react-native-paper';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigation/AppNavigator';
-import { useWorkoutContext } from '../../context/WorkoutContext';
-import { WorkoutExercise } from '../../models/WorkoutExercise';
+import React from "react";
+import { styles } from "./styles";
+import { View, FlatList, Alert } from "react-native";
+import { Text, FAB } from "react-native-paper";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../navigation/AppNavigator";
+import { useWorkoutContext } from "../../context/WorkoutContext";
+import { WorkoutExercise } from "../../models/WorkoutExercise";
 
-import { mockVariations } from '../../data/mockVariations';
-import { mockExercises } from '../../data/mockExercises';
-import { mockMuscleGroups } from '../../data/mockMuscleGroups';
+import { mockVariations } from "../../data/mockVariations";
+import { mockExercises } from "../../data/mockExercises";
+import { mockMuscleGroups } from "../../data/mockMuscleGroups";
 
 import {
   getExerciseFullName,
   getExerciseDisplay,
-} from '../../utils/exerciseUtils';
+} from "../../utils/exerciseUtils";
 
-import { WorkoutExerciseCard } from '../../components/WorkoutExerciseCard/WorkoutExerciseCard';
+import { WorkoutExerciseCard } from "../../components/WorkoutExerciseCard";
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Workout'>;
+type Props = NativeStackScreenProps<RootStackParamList, "Workout">;
 
 export const WorkoutScreen = ({ route, navigation }: Props) => {
   const { workoutId } = route.params;
@@ -36,15 +36,15 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   }
 
   const handleAddExercise = () => {
-    navigation.navigate('MuscleGroup', { workoutId });
+    navigation.navigate("MuscleGroup", { workoutId });
   };
 
   const handleRemove = (variationId: string) => {
-    Alert.alert('Remover exercício', 'Tem certeza?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert("Remover exercício", "Tem certeza?", [
+      { text: "Cancelar", style: "cancel" },
       {
-        text: 'Remover',
-        style: 'destructive',
+        text: "Remover",
+        style: "destructive",
         onPress: () => removeExerciseFromWorkout(workoutId, variationId),
       },
     ]);
@@ -65,7 +65,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
 
     const title = variation
       ? getExerciseFullName(variation, mockExercises)
-      : 'Exercício';
+      : "Exercício";
 
     return (
       <WorkoutExerciseCard
@@ -75,7 +75,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         title={title}
         groupName={display?.groupName}
         onOpen={() =>
-          navigation.navigate('ExerciseDetail', {
+          navigation.navigate("ExerciseDetail", {
             workoutId,
             variationId: item.variationId,
           })
