@@ -1,10 +1,10 @@
-import { WorkoutSet } from '../models/WorkoutSet';
+import { WorkoutSet } from "../models/WorkoutSet";
 import {
   ProgressionResult,
   ProgressionComparison,
   ProgressionConfig,
   PROGRESSION_STATUS,
-} from '../models/Progression';
+} from "../models/Progression";
 
 /**
  * Config padrão do app
@@ -54,7 +54,7 @@ export const averageRir = (sets: WorkoutSet[]): number => {
 export const validateProgression = (
   previousWorkoutSets: WorkoutSet[],
   currentWorkoutSets: WorkoutSet[],
-  config: ProgressionConfig = DEFAULT_CONFIG
+  config: ProgressionConfig = DEFAULT_CONFIG,
 ): ProgressionResult => {
   const prevVolume = calculateVolume(previousWorkoutSets);
   const currVolume = calculateVolume(currentWorkoutSets);
@@ -63,11 +63,11 @@ export const validateProgression = (
   const currReps = sumReps(currentWorkoutSets);
 
   // 🟡 Primeira execução
-  if (previousWorkoutSets.length === 0) {
+  if (previousWorkoutSets.length === 1) {
     return {
       isValid: true,
       status: PROGRESSION_STATUS.FIRST_TIME,
-      reason: 'Primeira execução',
+      reason: "Primeira execução",
       previousVolume: 0,
       currentVolume: currVolume,
       previousReps: 0,
@@ -80,7 +80,7 @@ export const validateProgression = (
     return {
       isValid: false,
       status: PROGRESSION_STATUS.EXCESSIVE_REP_DROP,
-      reason: 'Queda excessiva de repetições',
+      reason: "Queda excessiva de repetições",
       previousVolume: prevVolume,
       currentVolume: currVolume,
       previousReps: prevReps,
@@ -93,19 +93,19 @@ export const validateProgression = (
     return {
       isValid: false,
       status: PROGRESSION_STATUS.NO_VOLUME_INCREASE,
-      reason: 'Volume não aumentou',
+      reason: "Volume não aumentou",
       previousVolume: prevVolume,
       currentVolume: currVolume,
       previousReps: prevReps,
       currentReps: currReps,
     };
-  }  
+  }
 
   // 🟢 Progressão válida
   return {
     isValid: true,
     status: PROGRESSION_STATUS.PROGRESSION,
-    reason: 'Progressão válida',
+    reason: "Progressão válida",
     previousVolume: prevVolume,
     currentVolume: currVolume,
     previousReps: prevReps,
@@ -119,12 +119,11 @@ export const validateProgression = (
 export const suggestReps = (
   previousWorkoutSets: WorkoutSet[],
   newWeight: number,
-  config: ProgressionConfig = DEFAULT_CONFIG
+  config: ProgressionConfig = DEFAULT_CONFIG,
 ): number => {
   if (previousWorkoutSets.length === 0) return 10;
 
-  const avgReps =
-    sumReps(previousWorkoutSets) / previousWorkoutSets.length;
+  const avgReps = sumReps(previousWorkoutSets) / previousWorkoutSets.length;
 
   const avgWeight = averageWeight(previousWorkoutSets);
 
@@ -151,7 +150,7 @@ export const suggestReps = (
  */
 export const suggestNextWeight = (
   previousWorkoutSets: WorkoutSet[],
-  increment: number = 2
+  increment: number = 2,
 ): number => {
   const avgWeight = averageWeight(previousWorkoutSets);
 
@@ -163,7 +162,7 @@ export const suggestNextWeight = (
  */
 export const compareWorkoutSets = (
   previousWorkoutSets: WorkoutSet[],
-  currentWorkoutSets: WorkoutSet[]
+  currentWorkoutSets: WorkoutSet[],
 ): ProgressionComparison => {
   return {
     volumeDiff:

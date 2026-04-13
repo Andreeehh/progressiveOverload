@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { AppData } from '../models/AppData';
-import { Workout } from '../models/Workout';
-import { WorkoutExercise } from '../models/WorkoutExercise';
-import { WorkoutSet } from '../models/WorkoutSet';
+import { useEffect, useState } from "react";
+import { AppData } from "../models/AppData";
+import { Workout } from "../models/Workout";
+import { WorkoutExercise } from "../models/WorkoutExercise";
+import { WorkoutSet } from "../models/WorkoutSet";
 
-import { loadData, saveData } from '../services/storageService';
+import { loadData, saveData } from "../services/storageService";
 import {
   validateProgression,
   suggestReps,
-} from '../services/progressionService';
+} from "../services/progressionService";
 
-import { mockWorkout } from '../data/mockData';
+import { mockWorkout } from "../data/mockData";
 
 /**
  * Hook principal do app
@@ -73,7 +73,7 @@ export const useWorkout = () => {
    */
   const addExerciseToWorkout = (
     workoutId: string,
-    exercise: WorkoutExercise
+    exercise: WorkoutExercise,
   ) => {
     setData((prev) => ({
       ...prev,
@@ -82,11 +82,11 @@ export const useWorkout = () => {
 
         // 🔒 valida duplicado
         const alreadyExists = w.exercises.some(
-          (ex) => ex.variationId === exercise.variationId
+          (ex) => ex.variationId === exercise.variationId,
         );
 
         if (alreadyExists) {
-          console.log('⚠️ Exercício já existe no treino');
+          console.log("⚠️ Exercício já existe no treino");
           return w; // 🚫 não adiciona
         }
 
@@ -104,7 +104,7 @@ export const useWorkout = () => {
   const updateExerciseSets = (
     workoutId: string,
     variationId: string,
-    workoutSets: WorkoutSet[]
+    workoutSets: WorkoutSet[],
   ) => {
     setData((prev) => ({
       ...prev,
@@ -114,7 +114,7 @@ export const useWorkout = () => {
         return {
           ...w,
           exercises: w.exercises.map((ex) =>
-            ex.variationId === variationId ? { ...ex, workoutSets } : ex
+            ex.variationId === variationId ? { ...ex, workoutSets } : ex,
           ),
         };
       }),
@@ -126,12 +126,12 @@ export const useWorkout = () => {
    */
   const getLastExerciseSets = (variationId: string): WorkoutSet[] => {
     const sorted = [...data.workouts].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
 
     for (const workout of sorted) {
       const found = workout.exercises.find(
-        (ex) => ex.variationId === variationId
+        (ex) => ex.variationId === variationId,
       );
 
       if (found) return found.workoutSets;
@@ -145,7 +145,7 @@ export const useWorkout = () => {
    */
   const checkProgression = (
     variationId: string,
-    currentWorkoutSets: WorkoutSet[]
+    currentWorkoutSets: WorkoutSet[],
   ) => {
     const previousSets = getLastExerciseSets(variationId);
 
@@ -163,7 +163,7 @@ export const useWorkout = () => {
 
   const removeExerciseFromWorkout = (
     workoutId: string,
-    variationId: string
+    variationId: string,
   ) => {
     setData((prev) => ({
       ...prev,
@@ -181,7 +181,7 @@ export const useWorkout = () => {
   const moveExercise = (
     workoutId: string,
     fromIndex: number,
-    toIndex: number
+    toIndex: number,
   ) => {
     setData((prev) => ({
       ...prev,
@@ -191,7 +191,6 @@ export const useWorkout = () => {
         const updated = [...w.exercises];
         const [moved] = updated.splice(fromIndex, 1);
         updated.splice(toIndex, 0, moved);
-        console.log(updated);
 
         return {
           ...w,
@@ -202,32 +201,30 @@ export const useWorkout = () => {
   };
 
   const removeWorkout = (workoutId: string) => {
-  setData((prev) => ({
-    ...prev,
-    workouts: prev.workouts
-      .map((w) => {
-        if (w.id !== workoutId) return w;
+    setData((prev) => ({
+      ...prev,
+      workouts: prev.workouts
+        .map((w) => {
+          if (w.id !== workoutId) return w;
 
-        const hasExecution = w.exercises.some((ex) =>
-          ex.workoutSets.some(
-            (set) => set.reps > 0 || set.weight > 0
-          )
-        );
+          const hasExecution = w.exercises.some((ex) =>
+            ex.workoutSets.some((set) => set.reps > 0 || set.weight > 0),
+          );
 
-        // 🔥 Se já foi executado → soft delete
-        if (hasExecution) {
-          return {
-            ...w,
-            isDeleted: true,
-          };
-        }
+          // 🔥 Se já foi executado → soft delete
+          if (hasExecution) {
+            return {
+              ...w,
+              isDeleted: true,
+            };
+          }
 
-        // 🔥 Se não foi executado → remove de verdade
-        return null;
-      })
-      .filter(Boolean) as Workout[],
-  }));
-};
+          // 🔥 Se não foi executado → remove de verdade
+          return null;
+        })
+        .filter(Boolean) as Workout[],
+    }));
+  };
 
   return {
     data,
