@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { globalStyles } from "../../theme";
 import { View, FlatList, Alert } from "react-native";
-import { Text, FAB } from "react-native-paper";
+import { Text, FAB, Button } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { useWorkoutContext } from "../../context/WorkoutContext";
@@ -17,13 +17,26 @@ import {
 } from "../../utils/exerciseUtils";
 
 import { WorkoutExerciseCard } from "../../components/WorkoutExerciseCard";
+import { WorkoutSetModal } from "../../components/WorkoutSetModal";
+import { styles } from "./styles";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Workout">;
 
 export const WorkoutScreen = ({ route, navigation }: Props) => {
   const { workoutId } = route.params;
 
-  const { data, removeExerciseFromWorkout, moveExercise } = useWorkoutContext();
+  const {
+    data,
+    removeExerciseFromWorkout,
+    moveExercise,
+    updateExerciseSets,
+    getLastExerciseSets,
+  } = useWorkoutContext();
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<
+    number | null
+  >(null);
 
   const workout = data.workouts.find((w) => w.id === workoutId);
 
@@ -46,6 +59,43 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         text: "Remover",
         style: "destructive",
         onPress: () => removeExerciseFromWorkout(workoutId, variationId),
+      },
+    ]);
+  };
+
+  const handleOpenModal = (index: number) => {
+    setSelectedExerciseIndex(index);
+    setModalVisible(true);
+  };
+
+  const handleSaveSetModal = (sets: any[]) => {
+    if (selectedExerciseIndex === null) return;
+
+    const exercise = workout.exercises[selectedExerciseIndex];
+    updateExerciseSets(workoutId, exercise.variationId, sets);
+    setModalVisible(false);
+    setSelectedExerciseIndex(null);
+  };
+
+  const allSetsFilled = workout.exercises.every((ex) =>
+    ex.workoutSets.every((set) => set.reps > 0 && set.weight > 0),
+  );
+
+  const handleSaveWorkout = () => {
+    if (!allSetsFilled) {
+      Alert.alert(
+        "Sets incompletos",
+        "Todos os sets devem ter peso e reps preenchidos",
+      );
+      return;
+    }
+
+    Alert.alert("Treino salvo", "Treino foi salvo com sucesso!", [
+      {
+        text: "OK",
+        onPress: () => {
+          // Aqui você pode adicionar lógica adicional, como retornar para a HomeScreen
+        },
       },
     ]);
   };
@@ -74,12 +124,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         total={workout.exercises.length}
         title={title}
         groupName={display?.groupName}
-        onOpen={() =>
-          navigation.navigate("ExerciseDetail", {
-            workoutId,
-            variationId: item.variationId,
-          })
-        }
+        onOpen={() => handleOpenModal(index)}
         onRemove={() => handleRemove(item.variationId)}
         onMoveUp={() => moveExercise(workoutId, index, index - 1)}
         onMoveDown={() => moveExercise(workoutId, index, index + 1)}
@@ -99,7 +144,37 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         renderItem={renderItem}
       />
 
+      <Button
+        mode="contained"
+        onPress={handleSaveWorkout}
+        disabled={!allSetsFilled}
+        style={styles.saveButton}
+      >
+        Salvar Treino
+      </Button>
+
       <FAB icon="plus" style={globalStyles.fab} onPress={handleAddExercise} />
+
+      {selectedExerciseIndex !== null && (
+        (() => {
+          const exercise = workout.exercises[selectedExerciseIndex];
+          const variation = mockVariations.find(
+            (v) => v.id === exercise.variationId,
+          );
+          const lastSets = getLastExerciseSets(exercise.variationId);
+
+          return (
+            <WorkoutSetModal
+              visible={modalVisible}
+              defaultSets={variation?.defaultSets || 3}
+              currentSets={exercise.workoutSets}
+              lastWorkoutSets={lastSets}
+              onSave={handleSaveSetModal}
+              onClose={() => setModalVisible(false)}
+            />
+          );
+        })()
+      )}
     </View>
   );
 };
