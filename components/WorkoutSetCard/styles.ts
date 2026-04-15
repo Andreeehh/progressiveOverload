@@ -6,7 +6,21 @@ export const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: spacing.md,
   },
-  input: {
+  fieldContainer: {
     marginTop: spacing.sm,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: spacing.xs,
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  valueInput: {
+    width: 60,
+    textAlign: "center",
+    fontSize: 18,
   },
 });
