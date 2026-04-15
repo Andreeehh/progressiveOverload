@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { View, FlatList } from "react-native";
-import { Text, Button, TextInput, Modal, Portal, List } from "react-native-paper";
+import {
+  Text,
+  Button,
+  TextInput,
+  Modal,
+  Portal,
+  List,
+} from "react-native-paper";
 import { Exercise } from "../../models/Exercise";
 import { ExerciseVariation } from "../../models/ExerciseVariation";
 
@@ -93,9 +100,7 @@ export const VariationModal: React.FC<VariationModalProps> = ({
           style={{ marginBottom: 16 }}
         />
 
-        <View
-          style={{ flexDirection: "row", justifyContent: "space-between" }}
-        >
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <Button onPress={onDismiss}>Cancelar</Button>
           <Button
             mode="contained"

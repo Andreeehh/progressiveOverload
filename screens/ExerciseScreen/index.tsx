@@ -22,16 +22,20 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null,
+  );
 
   // Filter exercises by muscle group
   const filteredExercises = exercises.filter(
-    (exercise) => exercise.muscleGroupId === muscleGroupId
+    (exercise) => exercise.muscleGroupId === muscleGroupId,
   );
 
   // Get existing variations for selected exercise
   const getExistingVariations = (exerciseId: string): ExerciseVariation[] => {
-    return mockVariations.filter((variation) => variation.exerciseId === exerciseId);
+    return mockVariations.filter(
+      (variation) => variation.exerciseId === exerciseId,
+    );
   };
 
   /**
@@ -77,7 +81,10 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
   /**
    * ➕ Criar nova variação
    */
-  const handleCreateVariation = (variationName: string, defaultSets: number) => {
+  const handleCreateVariation = (
+    variationName: string,
+    defaultSets: number,
+  ) => {
     if (!selectedExercise) return;
 
     // Create new variation
@@ -112,7 +119,9 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
         visible={modalVisible}
         onDismiss={() => setModalVisible(false)}
         exercise={selectedExercise}
-        existingVariations={selectedExercise ? getExistingVariations(selectedExercise.id) : []}
+        existingVariations={
+          selectedExercise ? getExistingVariations(selectedExercise.id) : []
+        }
         onSelectVariation={handleSelectVariation}
         onCreateVariation={handleCreateVariation}
       />
