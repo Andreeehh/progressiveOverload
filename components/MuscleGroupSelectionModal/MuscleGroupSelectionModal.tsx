@@ -43,11 +43,10 @@ export const MuscleGroupSelectionModal: React.FC<
               variant="bodyMedium"
               style={{ marginBottom: 16, textAlign: "center" }}
             >
-              Nenhum grupo muscular criado. Crie um na tela inicial para começar.
+              Nenhum grupo muscular criado. Crie um na tela inicial para
+              começar.
             </Text>
-            <View
-              style={{ flexDirection: "row", gap: 8, marginTop: 16 }}
-            >
+            <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
               <Button onPress={onDismiss}>Voltar</Button>
               {onNavigateToCreate && (
                 <Button mode="contained" onPress={onNavigateToCreate}>

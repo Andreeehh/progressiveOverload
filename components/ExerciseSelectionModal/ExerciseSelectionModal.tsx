@@ -82,14 +82,16 @@ export const ExerciseSelectionModal: React.FC<ExerciseSelectionModalProps> = ({
                 variant="bodyMedium"
                 style={{ marginBottom: 16, textAlign: "center" }}
               >
-                Nenhum exercício criado para este grupo muscular. Crie um na tela
-                inicial para começar.
+                Nenhum exercício criado para este grupo muscular. Crie um na
+                tela inicial para começar.
               </Text>
               <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
-                <Button onPress={() => {
-                  onDismiss();
-                  onNavigateBack?.();
-                }}>
+                <Button
+                  onPress={() => {
+                    onDismiss();
+                    onNavigateBack?.();
+                  }}
+                >
                   Voltar
                 </Button>
               </View>

@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.andrevenancio.progressiveoverload"
+      "bundleIdentifier": "com.andrevenancio.progressiveoverload",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.andrevenancio.progressiveoverload",
