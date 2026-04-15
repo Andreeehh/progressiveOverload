@@ -16,8 +16,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "Exercise">;
 
 export const ExerciseScreen = ({ route, navigation }: Props) => {
   const { workoutId, muscleGroupId } = route.params;
-  const { data, addExerciseToWorkout, exercises, exerciseVariations, addExerciseVariation } =
-    useWorkoutContext();
+  const {
+    data,
+    addExerciseToWorkout,
+    exercises,
+    exerciseVariations,
+    addExerciseVariation,
+  } = useWorkoutContext();
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);

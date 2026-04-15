@@ -109,9 +109,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     item: WorkoutExercise;
     index: number;
   }) => {
-    const variation = exerciseVariations.find(
-      (v) => v.id === item.variationId,
-    );
+    const variation = exerciseVariations.find((v) => v.id === item.variationId);
 
     const display = variation
       ? getExerciseDisplay(variation, exercises, muscleGroups)
