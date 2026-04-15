@@ -5,6 +5,7 @@ import { globalStyles } from "../../theme";
 import { Exercise } from "../../models/Exercise";
 import { MuscleGroup } from "../../models/MuscleGroup";
 import { ExerciseModal } from "../../components/ExerciseModal";
+import { ProgressionReportModal } from "../../components/ProgressionReportModal";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 
 type ExerciseWithGroup = Exercise & { groupName: string };
@@ -16,6 +17,7 @@ export const ExerciseRoute = () => {
     updateExercise,
     removeExercise,
     muscleGroups,
+    data,
   } = useWorkoutContext();
 
   // Combine exercises with group names
@@ -32,6 +34,11 @@ export const ExerciseRoute = () => {
   const [exerciseName, setExerciseName] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [groupSearch, setGroupSearch] = useState("");
+
+  // Progression report state
+  const [reportVisible, setReportVisible] = useState(false);
+  const [selectedExerciseForReport, setSelectedExerciseForReport] =
+    useState<Exercise | null>(null);
 
   const handleAddExercise = () => {
     setEditingExercise(null);
@@ -81,6 +88,11 @@ export const ExerciseRoute = () => {
     removeExercise(exerciseId);
   };
 
+  const handleOpenReport = (exercise: Exercise) => {
+    setSelectedExerciseForReport(exercise);
+    setReportVisible(true);
+  };
+
   const renderItem = ({ item }: { item: ExerciseWithGroup }) => (
     <Card style={globalStyles.card}>
       <Card.Content>
@@ -89,6 +101,7 @@ export const ExerciseRoute = () => {
       </Card.Content>
       <Card.Actions>
         <Button onPress={() => handleEditExercise(item)}>Editar</Button>
+        <Button onPress={() => handleOpenReport(item)}>Relatório</Button>
         <Button textColor="red" onPress={() => handleDeleteExercise(item.id)}>
           Excluir
         </Button>
@@ -122,6 +135,13 @@ export const ExerciseRoute = () => {
         setGroupSearch={setGroupSearch}
         onSave={handleSaveExercise}
         muscleGroups={muscleGroups}
+      />
+
+      <ProgressionReportModal
+        visible={reportVisible}
+        onDismiss={() => setReportVisible(false)}
+        exercise={selectedExerciseForReport}
+        workoutExecutions={data.workoutExecutions}
       />
     </View>
   );

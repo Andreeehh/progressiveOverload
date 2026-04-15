@@ -3,9 +3,6 @@ import { spacing } from "../../theme";
 
 export const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     paddingHorizontal: spacing.md,
   },
   title: {
@@ -18,11 +15,10 @@ export const styles = StyleSheet.create({
     width: "100%",
     marginTop: spacing.lg,
     gap: spacing.md,
+    flexWrap: "wrap",
   },
   button: {
     flex: 1,
-  },
-  swipeHint: {
-    marginTop: spacing.lg,
+    minWidth: "30%",
   },
 });

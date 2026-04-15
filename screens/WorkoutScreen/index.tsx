@@ -31,6 +31,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     moveExercise,
     updateExerciseSets,
     getLastExerciseSets,
+    completeWorkout,
   } = useWorkoutContext();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -90,11 +91,13 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
       return;
     }
 
+    completeWorkout(workoutId);
+
     Alert.alert("Treino salvo", "Treino foi salvo com sucesso!", [
       {
         text: "OK",
         onPress: () => {
-          // Aqui você pode adicionar lógica adicional, como retornar para a HomeScreen
+          navigation.goBack();
         },
       },
     ]);

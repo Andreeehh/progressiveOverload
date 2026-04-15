@@ -22,10 +22,16 @@ export const loadData = async (): Promise<AppData> => {
         exercises: [],
         mesocycles: [],
         muscleGroups: [],
+        workoutExecutions: [],
       };
     }
 
-    return JSON.parse(data) as AppData;
+    const parsed = JSON.parse(data) as AppData & { workoutExecutions?: any };
+
+    return {
+      ...parsed,
+      workoutExecutions: parsed.workoutExecutions ?? [],
+    };
   } catch (error) {
     console.error("Erro ao carregar dados", error);
 
@@ -34,6 +40,7 @@ export const loadData = async (): Promise<AppData> => {
       exercises: [],
       mesocycles: [],
       muscleGroups: [],
+      workoutExecutions: [],
     };
   }
 };

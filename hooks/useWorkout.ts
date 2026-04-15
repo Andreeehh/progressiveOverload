@@ -3,6 +3,7 @@ import { AppData } from "../models/AppData";
 import { Workout } from "../models/Workout";
 import { WorkoutExercise } from "../models/WorkoutExercise";
 import { WorkoutSet } from "../models/WorkoutSet";
+import { WorkoutExecution } from "../models/WorkoutExecution";
 
 import { loadData, saveData } from "../services/storageService";
 import {
@@ -21,6 +22,7 @@ export const useWorkout = () => {
     exercises: [],
     mesocycles: [],
     muscleGroups: [],
+    workoutExecutions: [],
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -40,6 +42,7 @@ export const useWorkout = () => {
           exercises: [],
           mesocycles: [],
           muscleGroups: [],
+          workoutExecutions: [],
         });
       }
 
@@ -127,16 +130,12 @@ export const useWorkout = () => {
    * 🔍 Pega último treino do exercício
    */
   const getLastExerciseSets = (variationId: string): WorkoutSet[] => {
-    const sorted = [...data.workouts].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    const sorted = [...data.workoutExecutions]
+      .filter((exec) => exec.variationId === variationId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    for (const workout of sorted) {
-      const found = workout.exercises.find(
-        (ex) => ex.variationId === variationId,
-      );
-
-      if (found) return found.workoutSets;
+    if (sorted.length > 0) {
+      return sorted[0].workoutSets;
     }
 
     return [];
@@ -228,6 +227,51 @@ export const useWorkout = () => {
     }));
   };
 
+  /**
+   * ✅ Marcar treino como completo (com histórico)
+   */
+  const completeWorkout = (workoutId: string) => {
+    const now = new Date().toISOString();
+
+    console.log("📋 ANTES DE SALVAR:", data.workouts);
+
+    setData((prev) => {
+      const workout = prev.workouts.find((w) => w.id === workoutId);
+      if (!workout) return prev;
+
+      const newExecutions: WorkoutExecution[] = workout.exercises
+        .filter((ex) =>
+          ex.workoutSets.some((set) => set.reps > 0 || set.weight > 0),
+        )
+        .map((ex) => ({
+          id: `${workoutId}-${ex.variationId}-${now}`,
+          variationId: ex.variationId,
+          workoutSets: ex.workoutSets.map((set) => ({
+            ...set,
+            performedAt: now,
+          })),
+          date: now,
+        }));
+
+      const updated = {
+        ...prev,
+        workoutExecutions: [...prev.workoutExecutions, ...newExecutions],
+        workouts: prev.workouts.map((w) => {
+          if (w.id !== workoutId) return w;
+
+          // Atualizar data do workout
+          return {
+            ...w,
+            date: now,
+          };
+        }),
+      };
+
+      console.log("✅ DEPOIS DE SALVAR:", updated.workouts);
+      return updated;
+    });
+  };
+
   return {
     data,
     loading,
@@ -239,6 +283,7 @@ export const useWorkout = () => {
     removeExerciseFromWorkout,
     moveExercise,
     removeWorkout,
+    completeWorkout,
 
     // intelligence
     checkProgression,

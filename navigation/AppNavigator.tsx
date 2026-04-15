@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { HomeScreen } from "../screens/HomeScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
 import { ExerciseScreen } from "../screens/ExerciseScreen";
-import { ExerciseDetailScreen } from "../screens/ExerciseDetailScreen";
 import { MuscleGroupScreen } from "../screens/MuscleGroupScreen";
 
 /**
@@ -44,12 +43,6 @@ export const AppNavigator = () => {
           name="Exercise"
           component={ExerciseScreen}
           options={{ title: "Exercícios" }}
-        />
-
-        <Stack.Screen
-          name="ExerciseDetail"
-          component={ExerciseDetailScreen}
-          options={{ title: "Exercício" }}
         />
         <Stack.Screen
           name="MuscleGroup"

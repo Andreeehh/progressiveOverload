@@ -1,13 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import {
-  Modal,
-  View,
-  PanResponder,
-  Animated,
-  GestureResponderEvent,
-  PanResponderGestureState,
-} from "react-native";
-import { Text, Button } from "react-native-paper";
+import { useState, useEffect, useRef } from "react";
+import { View, ScrollView } from "react-native";
+import { Text, Button, Modal, Portal } from "react-native-paper";
 import { WorkoutSet } from "../../models/WorkoutSet";
 import { styles } from "./styles";
 import { WorkoutSetCard } from "../WorkoutSetCard";
@@ -31,13 +24,8 @@ export const WorkoutSetModal = ({
 }: WorkoutSetModalProps) => {
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
   const [localSets, setLocalSets] = useState<WorkoutSet[]>([]);
-  const pan = useRef(new Animated.ValueXY()).current;
-  const currentSetIndexRef = useRef(currentSetIndex);
-
-  // Atualizar a ref sempre que currentSetIndex mudar
-  useEffect(() => {
-    currentSetIndexRef.current = currentSetIndex;
-  }, [currentSetIndex]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const isFirstTimeRef = useRef<boolean>(false);
 
   // Inicializar localSets quando a modal abre
   useEffect(() => {
@@ -66,37 +54,13 @@ export const WorkoutSetModal = ({
       });
       setLocalSets(initialized);
       setCurrentSetIndex(0);
+
+      // Calcular se é primeira vez apenas na inicialização
+      isFirstTimeRef.current =
+        lastWorkoutSets.length === 0 &&
+        currentSets.every((set) => set.weight === 0 && set.reps === 0);
     }
   }, [visible]);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderRelease: (
-        evt: GestureResponderEvent,
-        gestureState: PanResponderGestureState,
-      ) => {
-        const { dx } = gestureState;
-        const currentIndex = currentSetIndexRef.current;
-
-        // Swipe para direita (set anterior)
-        if (dx > 50 && currentIndex > 0) {
-          setCurrentSetIndex(currentIndex - 1);
-        }
-
-        // Swipe para esquerda (próximo set)
-        if (dx < -50 && currentIndex < defaultSets - 1) {
-          setCurrentSetIndex(currentIndex + 1);
-        }
-
-        Animated.spring(pan, {
-          toValue: { x: 0, y: 0 },
-          useNativeDriver: false,
-        }).start();
-      },
-    }),
-  ).current;
 
   const updateSet = (
     index: number,
@@ -107,17 +71,68 @@ export const WorkoutSetModal = ({
     if (field === "performedAt") {
       updated[index][field] = value as string;
     } else {
+      // Converter string para number se necessário
+      const numValue =
+        typeof value === "string" ? parseFloat(value) || 0 : value;
       (updated[index][
         field as keyof Omit<WorkoutSet, "performedAt">
-      ] as number) = value as number;
+      ] as number) = numValue;
     }
+
+    // Se for primeira vez e está preenchendo o primeiro set, propaga para os outros
+    if (isFirstTimeRef.current && index === 0 && field !== "performedAt") {
+      const numValue =
+        typeof value === "string" ? parseFloat(value) || 0 : value;
+      updated.forEach((set, setIndex) => {
+        if (setIndex !== 0) {
+          (set[field as keyof Omit<WorkoutSet, "performedAt">] as number) =
+            numValue;
+        }
+      });
+    }
+
     setLocalSets(updated);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+    // Pequeno delay para evitar cliques duplos
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     onSave(localSets);
     onClose();
+    setIsProcessing(false);
   };
+
+  const handleNextSet = async () => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+    // Pequeno delay para evitar cliques duplos
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    if (currentSetIndex < defaultSets - 1) {
+      setCurrentSetIndex(currentSetIndex + 1);
+    }
+    setIsProcessing(false);
+  };
+
+  const handlePreviousSet = async () => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+    // Pequeno delay para evitar cliques duplos
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    if (currentSetIndex > 0) {
+      setCurrentSetIndex(currentSetIndex - 1);
+    }
+    setIsProcessing(false);
+  };
+
+  const isLastSet = currentSetIndex === defaultSets - 1;
 
   const handleClose = () => {
     onClose();
@@ -126,32 +141,52 @@ export const WorkoutSetModal = ({
   const currentSet = localSets[currentSetIndex];
 
   return (
-    <Modal visible={visible} animationType="fade" onRequestClose={handleClose}>
-      <View style={styles.container} {...panResponder.panHandlers}>
-        <Text variant="headlineSmall" style={styles.title}>
-          Set {currentSetIndex + 1} de {defaultSets}
-        </Text>
+    <Portal>
+      <Modal
+        visible={visible}
+        onDismiss={handleClose}
+        contentContainerStyle={{
+          backgroundColor: "white",
+          padding: 20,
+          margin: 20,
+          borderRadius: 8,
+          maxHeight: "90%",
+        }}
+      >
+        <ScrollView>
+          <Text variant="headlineSmall" style={styles.title}>
+            Set {currentSetIndex + 1} de {defaultSets}
+          </Text>
 
-        {currentSet && (
-          <WorkoutSetCard
-            workoutSet={currentSet}
-            onUpdate={(field, value) =>
-              updateSet(currentSetIndex, field, value)
-            }
-          />
-        )}
+          {currentSet && (
+            <WorkoutSetCard
+              workoutSet={currentSet}
+              onUpdate={(field, value) =>
+                updateSet(currentSetIndex, field, value)
+              }
+            />
+          )}
 
-        <View style={styles.buttonContainer}>
-          <Button mode="outlined" onPress={handleClose} style={styles.button}>
-            Cancelar
-          </Button>
-          <Button mode="contained" onPress={handleSave} style={styles.button}>
-            Salvar
-          </Button>
-        </View>
-
-        <Text style={styles.swipeHint}>← Deslize para navegar →</Text>
-      </View>
-    </Modal>
+          <View style={styles.buttonContainer}>
+            <Button
+              mode="outlined"
+              onPress={handlePreviousSet}
+              style={styles.button}
+              disabled={currentSetIndex == 0 || isProcessing}
+            >
+              Anterior
+            </Button>
+            <Button
+              mode="contained"
+              onPress={isLastSet ? handleSave : handleNextSet}
+              style={styles.button}
+              disabled={isProcessing}
+            >
+              {isLastSet ? "Salvar" : "Próximo"}
+            </Button>
+          </View>
+        </ScrollView>
+      </Modal>
+    </Portal>
   );
 };
