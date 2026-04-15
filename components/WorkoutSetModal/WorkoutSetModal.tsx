@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Modal,
   View,
@@ -7,9 +7,10 @@ import {
   GestureResponderEvent,
   PanResponderGestureState,
 } from "react-native";
-import { Text, TextInput, Button, Card } from "react-native-paper";
+import { Text, Button } from "react-native-paper";
 import { WorkoutSet } from "../../models/WorkoutSet";
-import { spacing } from "../../theme";
+import { styles } from "./styles";
+import { WorkoutSetCard } from "../WorkoutSetCard";
 
 interface WorkoutSetModalProps {
   visible: boolean;
@@ -20,20 +21,26 @@ interface WorkoutSetModalProps {
   onClose: () => void;
 }
 
-export const WorkoutSetModal: React.FC<WorkoutSetModalProps> = ({
+export const WorkoutSetModal = ({
   visible,
   defaultSets,
   currentSets,
   lastWorkoutSets,
   onSave,
   onClose,
-}) => {
+}: WorkoutSetModalProps) => {
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
   const [localSets, setLocalSets] = useState<WorkoutSet[]>([]);
   const pan = useRef(new Animated.ValueXY()).current;
+  const currentSetIndexRef = useRef(currentSetIndex);
+
+  // Atualizar a ref sempre que currentSetIndex mudar
+  useEffect(() => {
+    currentSetIndexRef.current = currentSetIndex;
+  }, [currentSetIndex]);
 
   // Inicializar localSets quando a modal abre
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       const initialized = Array.from({ length: defaultSets }, (_, index) => {
         // Se tem currentSets nesse índice, usa
@@ -71,15 +78,16 @@ export const WorkoutSetModal: React.FC<WorkoutSetModalProps> = ({
         gestureState: PanResponderGestureState,
       ) => {
         const { dx } = gestureState;
+        const currentIndex = currentSetIndexRef.current;
 
         // Swipe para direita (set anterior)
-        if (dx > 50 && currentSetIndex > 0) {
-          setCurrentSetIndex(currentSetIndex - 1);
+        if (dx > 50 && currentIndex > 0) {
+          setCurrentSetIndex(currentIndex - 1);
         }
 
         // Swipe para esquerda (próximo set)
-        if (dx < -50 && currentSetIndex < defaultSets - 1) {
-          setCurrentSetIndex(currentSetIndex + 1);
+        if (dx < -50 && currentIndex < defaultSets - 1) {
+          setCurrentSetIndex(currentIndex + 1);
         }
 
         Animated.spring(pan, {
@@ -119,87 +127,30 @@ export const WorkoutSetModal: React.FC<WorkoutSetModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="fade" onRequestClose={handleClose}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: spacing.md,
-        }}
-        {...panResponder.panHandlers}
-      >
-        <Text
-          variant="headlineSmall"
-          style={{ marginBottom: spacing.lg, textAlign: "center" }}
-        >
+      <View style={styles.container} {...panResponder.panHandlers}>
+        <Text variant="headlineSmall" style={styles.title}>
           Set {currentSetIndex + 1} de {defaultSets}
         </Text>
 
         {currentSet && (
-          <Card
-            style={{
-              width: "100%",
-              paddingHorizontal: spacing.md,
-            }}
-          >
-            <Card.Content>
-              <TextInput
-                label="Peso (kg)"
-                keyboardType="numeric"
-                value={currentSet.weight.toString()}
-                onChangeText={(text) =>
-                  updateSet(currentSetIndex, "weight", Number(text))
-                }
-                style={{ marginTop: spacing.sm }}
-              />
-
-              <TextInput
-                label="Reps"
-                keyboardType="numeric"
-                value={currentSet.reps.toString()}
-                onChangeText={(text) =>
-                  updateSet(currentSetIndex, "reps", Number(text))
-                }
-                style={{ marginTop: spacing.sm }}
-              />
-
-              <TextInput
-                label="RIR (Reps in Reserve)"
-                keyboardType="numeric"
-                value={currentSet.rir.toString()}
-                onChangeText={(text) =>
-                  updateSet(currentSetIndex, "rir", Number(text))
-                }
-                style={{ marginTop: spacing.sm }}
-              />
-            </Card.Content>
-          </Card>
+          <WorkoutSetCard
+            workoutSet={currentSet}
+            onUpdate={(field, value) =>
+              updateSet(currentSetIndex, field, value)
+            }
+          />
         )}
 
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "100%",
-            marginTop: spacing.lg,
-            gap: spacing.md,
-          }}
-        >
-          <Button mode="outlined" onPress={handleClose} style={{ flex: 1 }}>
+        <View style={styles.buttonContainer}>
+          <Button mode="outlined" onPress={handleClose} style={styles.button}>
             Cancelar
           </Button>
-          <Button mode="contained" onPress={handleSave} style={{ flex: 1 }}>
+          <Button mode="contained" onPress={handleSave} style={styles.button}>
             Salvar
           </Button>
         </View>
 
-        <Text
-          style={{
-            marginTop: spacing.lg,
-          }}
-        >
-          ← Deslize para navegar →
-        </Text>
+        <Text style={styles.swipeHint}>← Deslize para navegar →</Text>
       </View>
     </Modal>
   );

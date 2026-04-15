@@ -32,7 +32,11 @@ export const ExerciseDetailScreen = ({ route }: Props) => {
   /**
    * ✏️ atualizar set
    */
-  const updateSet = (index: number, field: keyof WorkoutSet, value: number) => {
+  const updateSet = (
+    index: number,
+    field: "reps" | "weight" | "rir",
+    value: number,
+  ) => {
     const updated = [...sets];
     updated[index][field] = value;
     setSets(updated);

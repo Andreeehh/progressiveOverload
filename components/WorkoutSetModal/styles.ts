@@ -4,33 +4,25 @@ import { spacing } from "../../theme";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: spacing.md,
-    paddingTop: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
   },
   title: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
+    textAlign: "center",
   },
-  card: {
-    marginBottom: spacing.sm,
-  },
-  input: {
-    marginTop: spacing.sm,
-  },
-  removeButton: {
-    marginTop: spacing.md,
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: spacing.lg,
+    gap: spacing.md,
   },
   button: {
-    marginTop: spacing.md,
+    flex: 1,
   },
-  footerButtons: {
-    flexDirection: "row",
-    gap: spacing.md,
+  swipeHint: {
     marginTop: spacing.lg,
-  },
-  saveButton: {
-    flex: 1,
-  },
-  cancelButton: {
-    flex: 1,
   },
 });
