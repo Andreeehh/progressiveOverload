@@ -37,9 +37,10 @@ export const VariationModal: React.FC<VariationModalProps> = ({
     const sets = parseInt(defaultSets) || 3;
     onCreateVariation(newVariationName.trim(), sets);
 
-    // Reset form
+    // Reset form and close modal
     setNewVariationName("");
     setDefaultSets("3");
+    onDismiss();
   };
 
   return (

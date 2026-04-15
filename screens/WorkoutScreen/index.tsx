@@ -80,6 +80,13 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   const handleSelectVariation = (variation: any) => {
     const variationId =
       typeof variation === "string" ? variation : variation.id;
+    const selectedVariation =
+      typeof variation === "string"
+        ? exerciseVariations.find((v) => v.id === variationId) || variation
+        : variation;
+
+    if (!selectedVariation) return;
+
     const exists = workout.exercises.some(
       (ex) => ex.variationId === variationId,
     );
@@ -88,13 +95,6 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
       Alert.alert("Já adicionado", "Essa variação já está no treino.");
       return;
     }
-
-    const selectedVariation =
-      typeof variation === "string"
-        ? exerciseVariations.find((v) => v.id === variationId)
-        : variation;
-
-    if (!selectedVariation) return;
 
     const sets: WorkoutSet[] = Array.from(
       { length: selectedVariation.defaultSets },
@@ -128,7 +128,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     };
 
     addExerciseVariation(newVariation);
-    handleSelectVariation(newVariation.id);
+    handleSelectVariation(newVariation);
   };
 
   const handleRemove = (variationId: string) => {

@@ -90,10 +90,6 @@ export const MuscleGroupRoute = () => {
 
   return (
     <View style={globalStyles.container}>
-      <Text variant="titleLarge" style={globalStyles.title}>
-        Grupos Musculares
-      </Text>
-
       <FlatList
         data={muscleGroups}
         keyExtractor={(item) => item.id}

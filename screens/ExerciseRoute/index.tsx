@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { View, FlatList } from "react-native";
-import { Text, FAB, Card, Button } from "react-native-paper";
+import { Text, FAB, Card, Button, IconButton } from "react-native-paper";
 import { globalStyles } from "../../theme";
 import { Exercise } from "../../models/Exercise";
 import { MuscleGroup } from "../../models/MuscleGroup";
 import { ExerciseModal } from "../../components/ExerciseModal";
 import { ProgressionReportModal } from "../../components/ProgressionReportModal";
+import { FilterModal } from "../../components/FilterModal";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 
 type ExerciseWithGroup = Exercise & { groupName: string };
@@ -40,6 +41,30 @@ export const ExerciseRoute = () => {
   const [reportVisible, setReportVisible] = useState(false);
   const [selectedExerciseForReport, setSelectedExerciseForReport] =
     useState<Exercise | null>(null);
+
+  // Filter state
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    searchText: "",
+    selectedGroupIds: [] as string[],
+  });
+
+  // Filtered exercises based on current filters
+  const filteredExercises = useMemo(() => {
+    return exercises.filter((exercise) => {
+      // Filter by search text
+      const matchesSearch =
+        filters.searchText === "" ||
+        exercise.name.toLowerCase().includes(filters.searchText.toLowerCase());
+
+      // Filter by selected muscle groups
+      const matchesGroup =
+        filters.selectedGroupIds.length === 0 ||
+        filters.selectedGroupIds.includes(exercise.muscleGroupId);
+
+      return matchesSearch && matchesGroup;
+    });
+  }, [exercises, filters]);
 
   const handleAddExercise = () => {
     setEditingExercise(null);
@@ -94,6 +119,24 @@ export const ExerciseRoute = () => {
     setReportVisible(true);
   };
 
+  const handleOpenFilter = () => {
+    setFilterModalVisible(true);
+  };
+
+  const handleApplyFilters = (newFilters: {
+    searchText: string;
+    selectedGroupIds: string[];
+  }) => {
+    setFilters(newFilters);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      searchText: "",
+      selectedGroupIds: [],
+    });
+  };
+
   const renderItem = ({ item }: { item: ExerciseWithGroup }) => (
     <Card style={globalStyles.card}>
       <Card.Content>
@@ -112,12 +155,34 @@ export const ExerciseRoute = () => {
 
   return (
     <View style={globalStyles.container}>
-      <Text variant="titleLarge" style={globalStyles.title}>
-        Exercícios
-      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+        }}
+      >
+        <Text variant="titleLarge" style={globalStyles.title}>
+          Filtrar
+        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          {(filters.searchText || filters.selectedGroupIds.length > 0) && (
+            <Button onPress={handleClearFilters} compact>
+              Limpar Filtros
+            </Button>
+          )}
+          <IconButton
+            icon="filter-variant"
+            size={24}
+            onPress={handleOpenFilter}
+          />
+        </View>
+      </View>
 
       <FlatList
-        data={exercises}
+        data={filteredExercises}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
@@ -136,6 +201,14 @@ export const ExerciseRoute = () => {
         setGroupSearch={setGroupSearch}
         onSave={handleSaveExercise}
         muscleGroups={muscleGroups}
+      />
+
+      <FilterModal
+        visible={filterModalVisible}
+        onDismiss={() => setFilterModalVisible(false)}
+        onApplyFilters={handleApplyFilters}
+        muscleGroups={muscleGroups}
+        currentFilters={filters}
       />
 
       <ProgressionReportModal

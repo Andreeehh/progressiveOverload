@@ -50,6 +50,8 @@ export const ExerciseSelectionModal: React.FC<ExerciseSelectionModalProps> = ({
   ) => {
     if (!selectedExercise) return;
     onCreateVariation(selectedExercise.id, variationName, defaultSets);
+    setVariationModalVisible(false);
+    onDismiss();
   };
 
   const getExistingVariations = (exerciseId: string): ExerciseVariation[] => {
