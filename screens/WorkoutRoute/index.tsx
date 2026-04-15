@@ -1,11 +1,12 @@
 import { globalStyles } from "../../theme";
 import { FlatList, View, Text, Alert } from "react-native";
-import { FAB } from "react-native-paper";
-import { HomeScreenCard } from "../../components/HomeScreenCard";
+import { FAB, Modal, Portal, TextInput, Button } from "react-native-paper";
+import { WorkoutCard } from "../../components/WorkoutCard";
 import { Workout } from "../../models/Workout";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { useWorkoutContext } from "../../context/WorkoutContext";
+import { useState } from "react";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 export const WorkoutsRoute = ({
@@ -14,16 +15,32 @@ export const WorkoutsRoute = ({
   navigation: Props["navigation"];
 }) => {
   const { data, loading, addWorkout, removeWorkout } = useWorkoutContext();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [workoutName, setWorkoutName] = useState("");
 
   const handleCreateWorkout = () => {
+    setModalVisible(true);
+  };
+
+  const handleSaveWorkout = () => {
+    if (!workoutName.trim()) return;
+
     const newWorkout: Workout = {
       id: Date.now().toString(),
+      name: workoutName.trim(),
       date: new Date().toISOString(),
       mesocycleId: "",
       exercises: [],
     };
 
     addWorkout(newWorkout);
+    setModalVisible(false);
+    setWorkoutName("");
+  };
+
+  const handleCancelWorkout = () => {
+    setModalVisible(false);
+    setWorkoutName("");
   };
 
   const handleRemove = (workoutId: string) => {
@@ -38,7 +55,7 @@ export const WorkoutsRoute = ({
   };
 
   const renderItem = ({ item }: { item: Workout }) => (
-    <HomeScreenCard
+    <WorkoutCard
       workout={item}
       onOpen={(workoutId) => navigation.navigate("Workout", { workoutId })}
       onRemove={handleRemove}
@@ -64,6 +81,41 @@ export const WorkoutsRoute = ({
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
+
+      <Portal>
+        <Modal
+          visible={modalVisible}
+          onDismiss={handleCancelWorkout}
+          contentContainerStyle={{
+            backgroundColor: "white",
+            padding: 20,
+            margin: 20,
+            borderRadius: 8,
+          }}
+        >
+          <Text variant="titleLarge" style={{ marginBottom: 16 }}>
+            Novo Treino
+          </Text>
+
+          <TextInput
+            label="Nome do Treino"
+            value={workoutName}
+            onChangeText={setWorkoutName}
+            mode="outlined"
+            style={{ marginBottom: 16 }}
+            autoFocus
+          />
+
+          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            <Button mode="outlined" onPress={handleCancelWorkout}>
+              Cancelar
+            </Button>
+            <Button mode="contained" onPress={handleSaveWorkout}>
+              Criar
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
 
       <FAB icon="plus" style={globalStyles.fab} onPress={handleCreateWorkout} />
     </View>

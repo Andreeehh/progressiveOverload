@@ -2,6 +2,7 @@ import { Workout } from '../models/Workout';
 
 export const mockWorkout: Workout = {
   id: '1',
+  name: 'Treino A',
   date: '2026-04-08',
   mesocycleId: 'meso1',
   exercises: [
