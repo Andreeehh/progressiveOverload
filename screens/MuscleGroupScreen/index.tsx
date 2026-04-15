@@ -3,19 +3,20 @@ import { View, FlatList } from "react-native";
 import { List } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
-import { mockMuscleGroups } from "../../data/mockMuscleGroups";
 import { MuscleGroup } from "../../models/MuscleGroup";
 import { globalStyles } from "../../theme";
+import { useWorkoutContext } from "../../context/WorkoutContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MuscleGroup">;
 
 export const MuscleGroupScreen = ({ navigation, route }: Props) => {
   const { workoutId } = route.params;
+  const { muscleGroups } = useWorkoutContext();
 
   return (
     <View style={globalStyles.container}>
       <FlatList<MuscleGroup>
-        data={mockMuscleGroups}
+        data={muscleGroups}
         keyExtractor={(item) => item.id}
         renderItem={({ item }: { item: MuscleGroup }) => (
           <List.Item
