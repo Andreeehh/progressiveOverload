@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import { globalStyles } from "../../theme";
 import { View, FlatList, Alert } from "react-native";
-import { Text, FAB, Button } from "react-native-paper";
+import { Text, FAB, Button, IconButton } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 import { WorkoutExercise } from "../../models/WorkoutExercise";
+import { MuscleGroup } from "../../models/MuscleGroup";
+import { WorkoutSet } from "../../models/WorkoutSet";
 
 import {
   getExerciseFullName,
@@ -14,6 +16,8 @@ import {
 
 import { WorkoutExerciseCard } from "../../components/WorkoutExerciseCard";
 import { WorkoutSetModal } from "../../components/WorkoutSetModal";
+import { MuscleGroupSelectionModal } from "../../components/MuscleGroupSelectionModal";
+import { ExerciseSelectionModal } from "../../components/ExerciseSelectionModal";
 import { styles } from "./styles";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Workout">;
@@ -31,12 +35,18 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     exerciseVariations,
     exercises,
     muscleGroups,
+    addExerciseToWorkout,
+    addExerciseVariation,
   } = useWorkoutContext();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<
     number | null
   >(null);
+  const [muscleGroupModalVisible, setMuscleGroupModalVisible] = useState(false);
+  const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
+  const [selectedMuscleGroup, setSelectedMuscleGroup] =
+    useState<MuscleGroup | null>(null);
 
   const workout = data.workouts.find((w) => w.id === workoutId);
 
@@ -49,7 +59,76 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   }
 
   const handleAddExercise = () => {
-    navigation.navigate("MuscleGroup", { workoutId });
+    setMuscleGroupModalVisible(true);
+  };
+
+  const handleSelectMuscleGroup = (muscleGroup: MuscleGroup) => {
+    setSelectedMuscleGroup(muscleGroup);
+    setExerciseModalVisible(true);
+  };
+
+  const handleBackToMuscleGroupModal = () => {
+    setExerciseModalVisible(false);
+    setSelectedMuscleGroup(null);
+  };
+
+  const handleNavigateToCreateMuscleGroup = () => {
+    setMuscleGroupModalVisible(false);
+    navigation.navigate("Home");
+  };
+
+  const handleSelectVariation = (variation: any) => {
+    const variationId =
+      typeof variation === "string" ? variation : variation.id;
+    const exists = workout.exercises.some(
+      (ex) => ex.variationId === variationId,
+    );
+
+    if (exists) {
+      Alert.alert("Já adicionado", "Essa variação já está no treino.");
+      return;
+    }
+
+    const selectedVariation =
+      typeof variation === "string"
+        ? exerciseVariations.find((v) => v.id === variationId)
+        : variation;
+
+    if (!selectedVariation) return;
+
+    const sets: WorkoutSet[] = Array.from(
+      { length: selectedVariation.defaultSets },
+      () => ({
+        weight: 0,
+        reps: 0,
+        rir: 0,
+      }),
+    );
+
+    const newExercise: WorkoutExercise = {
+      variationId: variationId,
+      workoutSets: sets,
+    };
+
+    addExerciseToWorkout(workoutId, newExercise);
+    setExerciseModalVisible(false);
+    setSelectedMuscleGroup(null);
+  };
+
+  const handleCreateVariation = (
+    exerciseId: string,
+    variationName: string,
+    defaultSets: number,
+  ) => {
+    const newVariation = {
+      id: Date.now().toString(),
+      exerciseId,
+      name: variationName,
+      defaultSets,
+    };
+
+    addExerciseVariation(newVariation);
+    handleSelectVariation(newVariation.id);
   };
 
   const handleRemove = (variationId: string) => {
@@ -96,7 +175,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
       {
         text: "OK",
         onPress: () => {
-          navigation.goBack();
+          navigation.navigate("Home");
         },
       },
     ]);
@@ -176,6 +255,28 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
             />
           );
         })()}
+
+      <MuscleGroupSelectionModal
+        visible={muscleGroupModalVisible}
+        onDismiss={() => setMuscleGroupModalVisible(false)}
+        muscleGroups={muscleGroups}
+        onSelectMuscleGroup={handleSelectMuscleGroup}
+        onNavigateToCreate={handleNavigateToCreateMuscleGroup}
+      />
+
+      {selectedMuscleGroup && (
+        <ExerciseSelectionModal
+          visible={exerciseModalVisible}
+          onDismiss={handleBackToMuscleGroupModal}
+          exercises={exercises.filter(
+            (ex) => ex.muscleGroupId === selectedMuscleGroup.id,
+          )}
+          exerciseVariations={exerciseVariations}
+          onSelectVariation={handleSelectVariation}
+          onCreateVariation={handleCreateVariation}
+          onNavigateBack={handleBackToMuscleGroupModal}
+        />
+      )}
     </View>
   );
 };

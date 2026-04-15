@@ -4,8 +4,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { HomeScreen } from "../screens/HomeScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
-import { ExerciseScreen } from "../screens/ExerciseScreen";
-import { MuscleGroupScreen } from "../screens/MuscleGroupScreen";
 
 /**
  * Tipagem das rotas
@@ -13,12 +11,6 @@ import { MuscleGroupScreen } from "../screens/MuscleGroupScreen";
 export type RootStackParamList = {
   Home: undefined;
   Workout: { workoutId: string };
-  MuscleGroup: { workoutId: string };
-  Exercise: { workoutId: string; muscleGroupId: string };
-  ExerciseDetail: {
-    workoutId: string;
-    variationId: string;
-  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -37,17 +29,6 @@ export const AppNavigator = () => {
           name="Workout"
           component={WorkoutScreen}
           options={{ title: "Treino" }}
-        />
-
-        <Stack.Screen
-          name="Exercise"
-          component={ExerciseScreen}
-          options={{ title: "Exercícios" }}
-        />
-        <Stack.Screen
-          name="MuscleGroup"
-          component={MuscleGroupScreen}
-          options={{ title: "Grupo Muscular" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
