@@ -1,6 +1,6 @@
 import { globalStyles } from "../../theme";
 import { FlatList, View, Text, Alert } from "react-native";
-import { FAB, Modal, Portal, TextInput, Button } from "react-native-paper";
+import { FAB, Modal, Portal, TextInput, Button, Text as PaperText } from "react-native-paper";
 import { WorkoutCard } from "../../components/WorkoutCard";
 import { Workout } from "../../models/Workout";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -93,9 +93,9 @@ export const WorkoutsRoute = ({
             borderRadius: 8,
           }}
         >
-          <Text variant="titleLarge" style={{ marginBottom: 16 }}>
+          <PaperText variant="titleLarge" style={{ marginBottom: 16 }}>
             Novo Treino
-          </Text>
+          </PaperText>
 
           <TextInput
             label="Nome do Treino"
@@ -106,7 +106,9 @@ export const WorkoutsRoute = ({
             autoFocus
           />
 
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
             <Button mode="outlined" onPress={handleCancelWorkout}>
               Cancelar
             </Button>

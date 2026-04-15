@@ -1,13 +1,13 @@
-import { Workout } from '../models/Workout';
+import { Workout } from "../models/Workout";
 
 export const mockWorkout: Workout = {
-  id: '1',
-  name: 'Treino A',
-  date: '2026-04-08',
-  mesocycleId: 'meso1',
+  id: "1",
+  name: "Treino A",
+  date: "2026-04-08",
+  mesocycleId: "meso1",
   exercises: [
     {
-      variationId: '1', // 👈 Supino Reto
+      variationId: "1", // 👈 Supino Reto
       workoutSets: [
         { reps: 10, weight: 40, rir: 2 },
         { reps: 10, weight: 40, rir: 1 },
