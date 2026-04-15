@@ -18,6 +18,9 @@ import { WorkoutExerciseCard } from "../../components/WorkoutExerciseCard";
 import { WorkoutSetModal } from "../../components/WorkoutSetModal";
 import { MuscleGroupSelectionModal } from "../../components/MuscleGroupSelectionModal";
 import { ExerciseSelectionModal } from "../../components/ExerciseSelectionModal";
+import { ProgressionAnalysisModal } from "../../components/ProgressionAnalysisModal";
+import { validateProgression } from "../../services/progressionService";
+import { ProgressionResult } from "../../models/Progression";
 import { styles } from "./styles";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Workout">;
@@ -47,6 +50,8 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
   const [selectedMuscleGroup, setSelectedMuscleGroup] =
     useState<MuscleGroup | null>(null);
+  const [progressionModalVisible, setProgressionModalVisible] = useState(false);
+  const [progressionResult, setProgressionResult] = useState<ProgressionResult | null>(null);
 
   const workout = data.workouts.find((w) => w.id === workoutId);
 
@@ -169,8 +174,31 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
       return;
     }
 
-    completeWorkout(workoutId);
+    // Validar progressão para cada exercício
+    let hasInvalidProgression = false;
+    let firstInvalidResult: ProgressionResult | null = null;
 
+    for (const exercise of workout.exercises) {
+      const lastSets = getLastExerciseSets(exercise.variationId);
+      if (lastSets && lastSets.length > 0) {
+        const result = validateProgression(lastSets, exercise.workoutSets);
+        if (!result.isValid) {
+          hasInvalidProgression = true;
+          if (!firstInvalidResult) {
+            firstInvalidResult = result;
+          }
+        }
+      }
+    }
+
+    if (hasInvalidProgression && firstInvalidResult) {
+      setProgressionResult(firstInvalidResult);
+      setProgressionModalVisible(true);
+      return;
+    }
+
+    // Se não há problemas de progressão ou é primeira vez, salvar diretamente
+    completeWorkout(workoutId);
     Alert.alert("Treino salvo", "Treino foi salvo com sucesso!", [
       {
         text: "OK",
@@ -179,6 +207,24 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         },
       },
     ]);
+  };
+
+  const handleConfirmSaveWorkout = () => {
+    setProgressionModalVisible(false);
+    completeWorkout(workoutId);
+    Alert.alert("Treino salvo", "Treino foi salvo com sucesso!", [
+      {
+        text: "OK",
+        onPress: () => {
+          navigation.navigate("Home");
+        },
+      },
+    ]);
+  };
+
+  const handleDismissProgressionModal = () => {
+    setProgressionModalVisible(false);
+    setProgressionResult(null);
   };
 
   const renderItem = ({
@@ -277,6 +323,13 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
           onNavigateBack={handleBackToMuscleGroupModal}
         />
       )}
+
+      <ProgressionAnalysisModal
+        visible={progressionModalVisible}
+        onDismiss={handleDismissProgressionModal}
+        onConfirm={handleConfirmSaveWorkout}
+        progressionResult={progressionResult}
+      />
     </View>
   );
 };

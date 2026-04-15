@@ -15,6 +15,24 @@ const DEFAULT_CONFIG: ProgressionConfig = {
 };
 
 /**
+ * Determina se o exercício é de força ou hipertrofia baseado no range de reps
+ */
+const getProgressionConfig = (sets: WorkoutSet[]): ProgressionConfig => {
+  const avgReps = sumReps(sets) / sets.length;
+
+  // Força: 1-4 reps (sem drop de reps)
+  if (avgReps <= 4) {
+    return {
+      minRepDropRatio: 1.0, // Não permite drop de reps
+      minReps: 1,
+    };
+  }
+
+  // Hipertrofia: 5-12+ reps (aplica 0.85 ratio)
+  return DEFAULT_CONFIG;
+};
+
+/**
  * Soma total de reps
  */
 export const sumReps = (sets: WorkoutSet[]): number => {
@@ -75,12 +93,18 @@ export const validateProgression = (
     };
   }
 
+  // Determinar se é treino de força ou hipertrofia baseado nas reps médias
+  const avgPrevReps = prevReps / previousWorkoutSets.length;
+  const isStrengthTraining = avgPrevReps <= 4; // 1-4 reps = força
+  const minRepDropRatio = isStrengthTraining ? 1.0 : config.minRepDropRatio; // Força: sem queda, Hipertrofia: 0.85
+
   // 🔴 Queda excessiva de reps
-  if (currReps < prevReps * config.minRepDropRatio) {
+  if (currReps < prevReps * minRepDropRatio) {
+    const trainingType = isStrengthTraining ? "força" : "hipertrofia";
     return {
       isValid: false,
       status: PROGRESSION_STATUS.EXCESSIVE_REP_DROP,
-      reason: "Queda excessiva de repetições",
+      reason: `Queda excessiva de repetições para treino de ${trainingType}`,
       previousVolume: prevVolume,
       currentVolume: currVolume,
       previousReps: prevReps,
