@@ -20,6 +20,7 @@ export const useWorkout = () => {
     workouts: [],
     exercises: [],
     mesocycles: [],
+    muscleGroups: [],
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,6 +39,7 @@ export const useWorkout = () => {
           workouts: [mockWorkout],
           exercises: [],
           mesocycles: [],
+          muscleGroups: [],
         });
       }
 

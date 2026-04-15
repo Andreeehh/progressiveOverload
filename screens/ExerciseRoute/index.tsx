@@ -1,31 +1,30 @@
 import React, { useState } from "react";
 import { View, FlatList } from "react-native";
-import {
-  Text,
-  FAB,
-  Card,
-  Button,
-  TextInput,
-  Modal,
-  Portal,
-} from "react-native-paper";
+import { Text, FAB, Card, Button } from "react-native-paper";
 import { globalStyles } from "../../theme";
-import { mockExercises } from "../../data/mockExercises";
-import { mockMuscleGroups } from "../../data/mockMuscleGroups";
 import { Exercise } from "../../models/Exercise";
 import { MuscleGroup } from "../../models/MuscleGroup";
+import { ExerciseModal } from "../../components/ExerciseModal";
+import { useWorkoutContext } from "../../context/WorkoutContext";
 
 type ExerciseWithGroup = Exercise & { groupName: string };
 
 export const ExerciseRoute = () => {
-  const [exercises, setExercises] = useState<ExerciseWithGroup[]>(() =>
-    mockExercises.map((exercise) => ({
-      ...exercise,
-      groupName:
-        mockMuscleGroups.find((g) => g.id === exercise.muscleGroupId)?.name ||
-        "Desconhecido",
-    })),
-  );
+  const {
+    exercises: rawExercises,
+    addExercise,
+    updateExercise,
+    removeExercise,
+    muscleGroups,
+  } = useWorkoutContext();
+
+  // Combine exercises with group names
+  const exercises: ExerciseWithGroup[] = rawExercises.map((exercise) => ({
+    ...exercise,
+    groupName:
+      muscleGroups.find((g) => g.id === exercise.muscleGroupId)?.name ||
+      "Desconhecido",
+  }));
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingExercise, setEditingExercise] =
@@ -33,10 +32,6 @@ export const ExerciseRoute = () => {
   const [exerciseName, setExerciseName] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [groupSearch, setGroupSearch] = useState("");
-
-  const filteredGroups = mockMuscleGroups.filter((group) =>
-    group.name.toLowerCase().includes(groupSearch.toLowerCase()),
-  );
 
   const handleAddExercise = () => {
     setEditingExercise(null);
@@ -51,7 +46,7 @@ export const ExerciseRoute = () => {
     setExerciseName(exercise.name);
     setSelectedGroupId(exercise.muscleGroupId);
     setGroupSearch(
-      mockMuscleGroups.find((g) => g.id === exercise.muscleGroupId)?.name || "",
+      muscleGroups.find((g) => g.id === exercise.muscleGroupId)?.name || "",
     );
     setModalVisible(true);
   };
@@ -61,31 +56,18 @@ export const ExerciseRoute = () => {
 
     if (editingExercise) {
       // Edit existing
-      setExercises((prev) =>
-        prev.map((ex) =>
-          ex.id === editingExercise.id
-            ? {
-                ...ex,
-                name: exerciseName.trim(),
-                muscleGroupId: selectedGroupId,
-                groupName:
-                  mockMuscleGroups.find((g) => g.id === selectedGroupId)
-                    ?.name || "Desconhecido",
-              }
-            : ex,
-        ),
-      );
+      updateExercise(editingExercise.id, {
+        name: exerciseName.trim(),
+        muscleGroupId: selectedGroupId,
+      });
     } else {
       // Add new
-      const newExercise: ExerciseWithGroup = {
+      const newExercise: Exercise = {
         id: Date.now().toString(),
         name: exerciseName.trim(),
         muscleGroupId: selectedGroupId,
-        groupName:
-          mockMuscleGroups.find((g) => g.id === selectedGroupId)?.name ||
-          "Desconhecido",
       };
-      setExercises((prev) => [...prev, newExercise]);
+      addExercise(newExercise);
     }
 
     setModalVisible(false);
@@ -96,7 +78,7 @@ export const ExerciseRoute = () => {
   };
 
   const handleDeleteExercise = (exerciseId: string) => {
-    setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
+    removeExercise(exerciseId);
   };
 
   const renderItem = ({ item }: { item: ExerciseWithGroup }) => (
@@ -128,69 +110,19 @@ export const ExerciseRoute = () => {
 
       <FAB icon="plus" style={globalStyles.fab} onPress={handleAddExercise} />
 
-      <Portal>
-        <Modal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={{
-            backgroundColor: "white",
-            padding: 20,
-            margin: 20,
-            borderRadius: 8,
-          }}
-        >
-          <Text variant="titleLarge" style={{ marginBottom: 16 }}>
-            {editingExercise ? "Editar Exercício" : "Novo Exercício"}
-          </Text>
-
-          <TextInput
-            label="Nome do Exercício"
-            value={exerciseName}
-            onChangeText={setExerciseName}
-            style={{ marginBottom: 16 }}
-          />
-
-          <TextInput
-            label="Grupo Muscular"
-            value={groupSearch}
-            onChangeText={setGroupSearch}
-            style={{ marginBottom: 16 }}
-          />
-
-          {filteredGroups.length > 0 && (
-            <FlatList
-              data={filteredGroups}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <Button
-                  mode={selectedGroupId === item.id ? "contained" : "outlined"}
-                  onPress={() => {
-                    setSelectedGroupId(item.id);
-                    setGroupSearch(item.name);
-                  }}
-                  style={{ marginBottom: 8 }}
-                >
-                  {item.name}
-                </Button>
-              )}
-              style={{ maxHeight: 200, marginBottom: 16 }}
-            />
-          )}
-
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Button onPress={() => setModalVisible(false)}>Cancelar</Button>
-            <Button
-              mode="contained"
-              onPress={handleSaveExercise}
-              disabled={!exerciseName.trim() || !selectedGroupId}
-            >
-              Salvar
-            </Button>
-          </View>
-        </Modal>
-      </Portal>
+      <ExerciseModal
+        visible={modalVisible}
+        onDismiss={() => setModalVisible(false)}
+        editingExercise={editingExercise}
+        exerciseName={exerciseName}
+        setExerciseName={setExerciseName}
+        selectedGroupId={selectedGroupId}
+        setSelectedGroupId={setSelectedGroupId}
+        groupSearch={groupSearch}
+        setGroupSearch={setGroupSearch}
+        onSave={handleSaveExercise}
+        muscleGroups={muscleGroups}
+      />
     </View>
   );
 };

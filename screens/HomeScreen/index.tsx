@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { ExerciseRoute } from "../ExerciseRoute";
 import { WorkoutsRoute } from "../WorkoutRoute";
+import { MuscleGroupRoute } from "../MuscleGroupRoute";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -15,6 +16,7 @@ export const HomeScreen = ({ navigation }: Props) => {
   const [routes] = useState([
     { key: "workouts", title: "Treinos" },
     { key: "exercises", title: "Exercícios" },
+    { key: "muscleGroups", title: "Grupos" },
   ]);
 
   const renderScene = ({ route }: { route: any }) => {
@@ -23,6 +25,8 @@ export const HomeScreen = ({ navigation }: Props) => {
         return <WorkoutsRoute navigation={navigation} />;
       case "exercises":
         return <ExerciseRoute />;
+      case "muscleGroups":
+        return <MuscleGroupRoute />;
       default:
         return null;
     }

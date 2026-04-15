@@ -1,0 +1,1 @@
+export { MuscleGroupModal } from "./MuscleGroupModal";
