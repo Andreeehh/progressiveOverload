@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "progressiveoverload",
-    "slug": "snack-9989198f-cdf6-4305-a581-f450bf0446fa",
+    "slug": "teste",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,6 +24,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "61dcf3d8-461a-4c79-bec0-885e6da7d9db"
+      }
+    },
+    "owner": "andreeehh"
   }
 }

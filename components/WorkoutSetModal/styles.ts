@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { spacing } from '../../theme';
+import { StyleSheet } from "react-native";
+import { spacing } from "../../theme";
 
 export const styles = StyleSheet.create({
   container: {
@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   footerButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.md,
     marginTop: spacing.lg,
   },

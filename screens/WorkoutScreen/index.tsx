@@ -155,7 +155,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
 
       <FAB icon="plus" style={globalStyles.fab} onPress={handleAddExercise} />
 
-      {selectedExerciseIndex !== null && (
+      {selectedExerciseIndex !== null &&
         (() => {
           const exercise = workout.exercises[selectedExerciseIndex];
           const variation = mockVariations.find(
@@ -173,8 +173,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
               onClose={() => setModalVisible(false)}
             />
           );
-        })()
-      )}
+        })()}
     </View>
   );
 };
