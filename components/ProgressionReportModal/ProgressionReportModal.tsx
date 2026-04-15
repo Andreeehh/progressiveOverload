@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, FlatList, ScrollView } from "react-native";
 import { Text, Modal, Portal, Button, Card } from "react-native-paper";
-import { mockVariations } from "../../data/mockVariations";
 import { Exercise } from "../../models/Exercise";
+import { ExerciseVariation } from "../../models/ExerciseVariation";
 import { WorkoutExecution } from "../../models/WorkoutExecution";
 
 interface ProgressionReportModalProps {
@@ -10,6 +10,7 @@ interface ProgressionReportModalProps {
   onDismiss: () => void;
   exercise: Exercise | null;
   workoutExecutions: WorkoutExecution[];
+  exerciseVariations: ExerciseVariation[];
 }
 
 interface WorkoutHistory {
@@ -24,6 +25,7 @@ export const ProgressionReportModal: React.FC<ProgressionReportModalProps> = ({
   onDismiss,
   exercise,
   workoutExecutions,
+  exerciseVariations,
 }) => {
   const [expandedVariationId, setExpandedVariationId] = useState<string | null>(
     null,
@@ -35,7 +37,7 @@ export const ProgressionReportModal: React.FC<ProgressionReportModalProps> = ({
   if (!exercise) return null;
 
   // Get all variations for this exercise
-  const exerciseVariations = mockVariations.filter(
+  const variationsForExercise = exerciseVariations.filter(
     (v) => v.exerciseId === exercise.id,
   );
 
@@ -99,7 +101,7 @@ export const ProgressionReportModal: React.FC<ProgressionReportModalProps> = ({
             </Text>
           ) : (
             <FlatList
-              data={exerciseVariations}
+              data={variationsForExercise}
               keyExtractor={(item) => item.id}
               scrollEnabled={false}
               renderItem={({ item: variation }) => {

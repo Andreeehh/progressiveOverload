@@ -20,6 +20,7 @@ export const loadData = async (): Promise<AppData> => {
       return {
         workouts: [],
         exercises: [],
+        exerciseVariations: [],
         mesocycles: [],
         muscleGroups: [],
         workoutExecutions: [],
@@ -30,6 +31,7 @@ export const loadData = async (): Promise<AppData> => {
 
     return {
       ...parsed,
+      exerciseVariations: parsed.exerciseVariations ?? [],
       workoutExecutions: parsed.workoutExecutions ?? [],
     };
   } catch (error) {
@@ -38,6 +40,7 @@ export const loadData = async (): Promise<AppData> => {
     return {
       workouts: [],
       exercises: [],
+      exerciseVariations: [],
       mesocycles: [],
       muscleGroups: [],
       workoutExecutions: [],

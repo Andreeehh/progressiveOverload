@@ -20,6 +20,7 @@ export const useWorkout = () => {
   const [data, setData] = useState<AppData>({
     workouts: [],
     exercises: [],
+    exerciseVariations: [],
     mesocycles: [],
     muscleGroups: [],
     workoutExecutions: [],
@@ -40,6 +41,7 @@ export const useWorkout = () => {
         setData({
           workouts: [mockWorkout],
           exercises: [],
+          exerciseVariations: [],
           mesocycles: [],
           muscleGroups: [],
           workoutExecutions: [],

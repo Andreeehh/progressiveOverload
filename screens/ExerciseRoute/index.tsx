@@ -18,6 +18,7 @@ export const ExerciseRoute = () => {
     removeExercise,
     muscleGroups,
     data,
+    exerciseVariations,
   } = useWorkoutContext();
 
   // Combine exercises with group names
@@ -142,6 +143,7 @@ export const ExerciseRoute = () => {
         onDismiss={() => setReportVisible(false)}
         exercise={selectedExerciseForReport}
         workoutExecutions={data.workoutExecutions}
+        exerciseVariations={exerciseVariations}
       />
     </View>
   );

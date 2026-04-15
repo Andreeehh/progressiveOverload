@@ -7,10 +7,6 @@ import { RootStackParamList } from "../../navigation/AppNavigator";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 import { WorkoutExercise } from "../../models/WorkoutExercise";
 
-import { mockVariations } from "../../data/mockVariations";
-import { mockExercises } from "../../data/mockExercises";
-import { mockMuscleGroups } from "../../data/mockMuscleGroups";
-
 import {
   getExerciseFullName,
   getExerciseDisplay,
@@ -32,6 +28,9 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     updateExerciseSets,
     getLastExerciseSets,
     completeWorkout,
+    exerciseVariations,
+    exercises,
+    muscleGroups,
   } = useWorkoutContext();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -110,14 +109,16 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     item: WorkoutExercise;
     index: number;
   }) => {
-    const variation = mockVariations.find((v) => v.id === item.variationId);
+    const variation = exerciseVariations.find(
+      (v) => v.id === item.variationId,
+    );
 
     const display = variation
-      ? getExerciseDisplay(variation, mockExercises, mockMuscleGroups)
+      ? getExerciseDisplay(variation, exercises, muscleGroups)
       : null;
 
     const title = variation
-      ? getExerciseFullName(variation, mockExercises)
+      ? getExerciseFullName(variation, exercises)
       : "Exercício";
 
     return (
@@ -161,7 +162,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
       {selectedExerciseIndex !== null &&
         (() => {
           const exercise = workout.exercises[selectedExerciseIndex];
-          const variation = mockVariations.find(
+          const variation = exerciseVariations.find(
             (v) => v.id === exercise.variationId,
           );
           const lastSets = getLastExerciseSets(exercise.variationId);

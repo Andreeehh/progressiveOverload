@@ -2,11 +2,13 @@ import React, { createContext, useContext } from "react";
 import { useWorkout } from "../hooks/useWorkout";
 import { useExercises } from "../hooks/useExercises";
 import { useMuscleGroups } from "../hooks/useMuscleGroups";
+import { useExerciseVariations } from "../hooks/useExerciseVariations";
 
 const WorkoutContext = createContext<
   | (ReturnType<typeof useWorkout> &
       ReturnType<typeof useExercises> &
-      ReturnType<typeof useMuscleGroups>)
+      ReturnType<typeof useMuscleGroups> &
+      ReturnType<typeof useExerciseVariations>)
   | null
 >(null);
 
@@ -18,11 +20,13 @@ export const WorkoutProvider = ({
   const workout = useWorkout();
   const exercises = useExercises();
   const muscleGroups = useMuscleGroups();
+  const exerciseVariations = useExerciseVariations();
 
   const contextValue = {
     ...workout,
     ...exercises,
     ...muscleGroups,
+    ...exerciseVariations,
   };
 
   return (

@@ -6,8 +6,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 
-import { mockVariations } from "../../data/mockVariations";
-
 import { WorkoutExercise } from "../../models/WorkoutExercise";
 import { ExerciseVariation } from "../../models/ExerciseVariation";
 import { WorkoutSet } from "../../models/WorkoutSet";
@@ -18,7 +16,8 @@ type Props = NativeStackScreenProps<RootStackParamList, "Exercise">;
 
 export const ExerciseScreen = ({ route, navigation }: Props) => {
   const { workoutId, muscleGroupId } = route.params;
-  const { data, addExerciseToWorkout, exercises } = useWorkoutContext();
+  const { data, addExerciseToWorkout, exercises, exerciseVariations, addExerciseVariation } =
+    useWorkoutContext();
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -33,7 +32,7 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
 
   // Get existing variations for selected exercise
   const getExistingVariations = (exerciseId: string): ExerciseVariation[] => {
-    return mockVariations.filter(
+    return exerciseVariations.filter(
       (variation) => variation.exerciseId === exerciseId,
     );
   };
@@ -95,8 +94,8 @@ export const ExerciseScreen = ({ route, navigation }: Props) => {
       defaultSets,
     };
 
-    // Add to mock variations (in a real app, this would be persisted)
-    mockVariations.push(newVariation);
+    // Add to exercise variations (persisted via context)
+    addExerciseVariation(newVariation);
 
     // Select the newly created variation
     handleSelectVariation(newVariation);
