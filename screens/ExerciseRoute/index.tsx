@@ -4,6 +4,9 @@ import { Text, FAB, Card, Button, IconButton } from "react-native-paper";
 import { globalStyles } from "../../theme";
 import { Exercise } from "../../models/Exercise";
 import { MuscleGroup } from "../../models/MuscleGroup";
+import { Workout } from "../../models/Workout";
+import { WorkoutExercise } from "../../models/WorkoutExercise";
+import { ExerciseVariation } from "../../models/ExerciseVariation";
 import { ExerciseModal } from "../../components/ExerciseModal";
 import { ProgressionReportModal } from "../../components/ProgressionReportModal";
 import { FilterModal } from "../../components/FilterModal";
@@ -18,17 +21,20 @@ export const ExerciseRoute = () => {
     updateExercise,
     removeExercise,
     muscleGroups,
-    data,
+    workouts,
     exerciseVariations,
+    workoutExecutions,
   } = useWorkoutContext();
 
   // Combine exercises with group names
-  const exercises: ExerciseWithGroup[] = rawExercises.map((exercise) => ({
-    ...exercise,
-    groupName:
-      muscleGroups.find((g) => g.id === exercise.muscleGroupId)?.name ||
-      "Desconhecido",
-  }));
+  const exercises: ExerciseWithGroup[] = rawExercises.map(
+    (exercise: Exercise) => ({
+      ...exercise,
+      groupName:
+        muscleGroups.find((g: MuscleGroup) => g.id === exercise.muscleGroupId)
+          ?.name || "Desconhecido",
+    }),
+  );
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingExercise, setEditingExercise] =
@@ -47,11 +53,12 @@ export const ExerciseRoute = () => {
   const [filters, setFilters] = useState({
     searchText: "",
     selectedGroupIds: [] as string[],
+    selectedWorkoutId: undefined as string | undefined,
   });
 
   // Filtered exercises based on current filters
   const filteredExercises = useMemo(() => {
-    return exercises.filter((exercise) => {
+    return exercises.filter((exercise: ExerciseWithGroup) => {
       // Filter by search text
       const matchesSearch =
         filters.searchText === "" ||
@@ -62,9 +69,28 @@ export const ExerciseRoute = () => {
         filters.selectedGroupIds.length === 0 ||
         filters.selectedGroupIds.includes(exercise.muscleGroupId);
 
-      return matchesSearch && matchesGroup;
+      // Filter by workout - show only exercises that are variationen in the selected workout
+      let matchesWorkout = true;
+      if (filters.selectedWorkoutId) {
+        const workout = workouts.find(
+          (w: Workout) => w.id === filters.selectedWorkoutId,
+        );
+        if (workout) {
+          const variationIdsInWorkout = workout.exercises.map(
+            (ex: WorkoutExercise) => ex.variationId,
+          );
+          const exerciseVariationsForExercise = exerciseVariations.filter(
+            (v: ExerciseVariation) => v.exerciseId === exercise.id,
+          );
+          matchesWorkout = exerciseVariationsForExercise.some(
+            (v: ExerciseVariation) => variationIdsInWorkout.includes(v.id),
+          );
+        }
+      }
+
+      return matchesSearch && matchesGroup && matchesWorkout;
     });
-  }, [exercises, filters]);
+  }, [exercises, filters, workouts, exerciseVariations]);
 
   const handleAddExercise = () => {
     setEditingExercise(null);
@@ -79,7 +105,8 @@ export const ExerciseRoute = () => {
     setExerciseName(exercise.name);
     setSelectedGroupId(exercise.muscleGroupId);
     setGroupSearch(
-      muscleGroups.find((g) => g.id === exercise.muscleGroupId)?.name || "",
+      muscleGroups.find((g: MuscleGroup) => g.id === exercise.muscleGroupId)
+        ?.name || "",
     );
     setModalVisible(true);
   };
@@ -126,6 +153,7 @@ export const ExerciseRoute = () => {
   const handleApplyFilters = (newFilters: {
     searchText: string;
     selectedGroupIds: string[];
+    selectedWorkoutId: string | undefined;
   }) => {
     setFilters(newFilters);
   };
@@ -134,6 +162,7 @@ export const ExerciseRoute = () => {
     setFilters({
       searchText: "",
       selectedGroupIds: [],
+      selectedWorkoutId: undefined,
     });
   };
 
@@ -168,7 +197,9 @@ export const ExerciseRoute = () => {
           Filtrar
         </Text>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          {(filters.searchText || filters.selectedGroupIds.length > 0) && (
+          {(filters.searchText ||
+            filters.selectedGroupIds.length > 0 ||
+            filters.selectedWorkoutId) && (
             <Button onPress={handleClearFilters} compact>
               Limpar Filtros
             </Button>
@@ -208,6 +239,7 @@ export const ExerciseRoute = () => {
         onDismiss={() => setFilterModalVisible(false)}
         onApplyFilters={handleApplyFilters}
         muscleGroups={muscleGroups}
+        workouts={workouts}
         currentFilters={filters}
       />
 
@@ -215,7 +247,7 @@ export const ExerciseRoute = () => {
         visible={reportVisible}
         onDismiss={() => setReportVisible(false)}
         exercise={selectedExerciseForReport}
-        workoutExecutions={data.workoutExecutions}
+        workoutExecutions={workoutExecutions}
         exerciseVariations={exerciseVariations}
       />
     </View>

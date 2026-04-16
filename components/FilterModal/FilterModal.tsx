@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, FlatList, ScrollView } from "react-native";
 import {
   Text,
@@ -9,6 +9,7 @@ import {
   Chip,
 } from "react-native-paper";
 import { MuscleGroup } from "../../models/MuscleGroup";
+import { Workout } from "../../models/Workout";
 
 interface FilterModalProps {
   visible: boolean;
@@ -16,11 +17,14 @@ interface FilterModalProps {
   onApplyFilters: (filters: {
     searchText: string;
     selectedGroupIds: string[];
+    selectedWorkoutId: string | undefined;
   }) => void;
   muscleGroups: MuscleGroup[];
+  workouts: Workout[];
   currentFilters: {
     searchText: string;
     selectedGroupIds: string[];
+    selectedWorkoutId: string | undefined;
   };
 }
 
@@ -29,12 +33,23 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   onDismiss,
   onApplyFilters,
   muscleGroups,
+  workouts,
   currentFilters,
 }) => {
   const [searchText, setSearchText] = useState(currentFilters.searchText);
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>(
     currentFilters.selectedGroupIds,
   );
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<
+    string | undefined
+  >(currentFilters.selectedWorkoutId);
+
+  // Atualizar estado quando currentFilters muda
+  useEffect(() => {
+    setSearchText(currentFilters.searchText);
+    setSelectedGroupIds(currentFilters.selectedGroupIds);
+    setSelectedWorkoutId(currentFilters.selectedWorkoutId);
+  }, [visible, currentFilters]);
 
   const handleToggleGroup = (groupId: string) => {
     setSelectedGroupIds((prev) =>
@@ -44,10 +59,17 @@ export const FilterModal: React.FC<FilterModalProps> = ({
     );
   };
 
+  const handleToggleWorkout = (workoutId: string) => {
+    setSelectedWorkoutId(
+      selectedWorkoutId === workoutId ? undefined : workoutId,
+    );
+  };
+
   const handleApplyFilters = () => {
     onApplyFilters({
       searchText: searchText.trim(),
       selectedGroupIds,
+      selectedWorkoutId,
     });
     onDismiss();
   };
@@ -55,6 +77,14 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   const handleClearFilters = () => {
     setSearchText("");
     setSelectedGroupIds([]);
+    setSelectedWorkoutId(undefined);
+    // Aplicar os filtros limpos imediatamente
+    onApplyFilters({
+      searchText: "",
+      selectedGroupIds: [],
+      selectedWorkoutId: undefined,
+    });
+    onDismiss();
   };
 
   return (
@@ -108,6 +138,37 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               </Chip>
             ))}
           </View>
+
+          {/* Filter by workouts */}
+          {workouts.length > 0 && (
+            <>
+              <Text variant="titleMedium" style={{ marginBottom: 8 }}>
+                Filtrar por Treino
+              </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                {workouts
+                  .filter((w) => !w.isDeleted)
+                  .map((workout) => (
+                    <Chip
+                      key={workout.id}
+                      selected={selectedWorkoutId === workout.id}
+                      onPress={() => handleToggleWorkout(workout.id)}
+                      style={{ marginBottom: 4 }}
+                    >
+                      {workout.name}
+                    </Chip>
+                  ))}
+              </View>
+            </>
+          )}
 
           {/* Action buttons */}
           <View

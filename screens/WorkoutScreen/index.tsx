@@ -1,13 +1,15 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState } from "react";
 import { globalStyles } from "../../theme";
 import { View, FlatList, Alert } from "react-native";
-import { Text, FAB, Button, IconButton } from "react-native-paper";
+import { Text, FAB, Button } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 import { WorkoutExercise } from "../../models/WorkoutExercise";
 import { MuscleGroup } from "../../models/MuscleGroup";
 import { WorkoutSet } from "../../models/WorkoutSet";
+import { ExerciseVariation } from "../../models/ExerciseVariation";
+import { Exercise } from "../../models/Exercise";
 
 import {
   getExerciseFullName,
@@ -22,6 +24,7 @@ import { ProgressionAnalysisModal } from "../../components/ProgressionAnalysisMo
 import { validateProgression } from "../../services/progressionService";
 import { ProgressionResult } from "../../models/Progression";
 import { styles } from "./styles";
+import { Workout } from '../../models/Workout';
 
 type Props = NativeStackScreenProps<RootStackParamList, "Workout">;
 
@@ -29,7 +32,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   const { workoutId } = route.params;
 
   const {
-    data,
+    workouts,
     removeExerciseFromWorkout,
     moveExercise,
     updateExerciseSets,
@@ -54,7 +57,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   const [progressionResult, setProgressionResult] =
     useState<ProgressionResult | null>(null);
 
-  const workout = data.workouts.find((w) => w.id === workoutId);
+  const workout = workouts.find((w: Workout) => w.id === workoutId);
 
   if (!workout) {
     return (
@@ -83,18 +86,18 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     navigation.navigate("Home");
   };
 
-  const handleSelectVariation = (variation: any) => {
+  const handleSelectVariation = (variation: string | ExerciseVariation) => {
     const variationId =
       typeof variation === "string" ? variation : variation.id;
     const selectedVariation =
       typeof variation === "string"
-        ? exerciseVariations.find((v) => v.id === variationId) || variation
+        ? exerciseVariations.find((v: ExerciseVariation) => v.id === variationId)
         : variation;
 
     if (!selectedVariation) return;
 
     const exists = workout.exercises.some(
-      (ex) => ex.variationId === variationId,
+      (ex: WorkoutExercise) => ex.variationId === variationId,
     );
 
     if (exists) {
@@ -162,8 +165,8 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     setSelectedExerciseIndex(null);
   };
 
-  const allSetsFilled = workout.exercises.every((ex) =>
-    ex.workoutSets.every((set) => set.reps > 0 && set.weight > 0),
+  const allSetsFilled = workout.exercises.every((ex: WorkoutExercise) =>
+    ex.workoutSets.every((set: WorkoutSet) => set.reps > 0 && set.weight > 0),
   );
 
   const handleSaveWorkout = () => {
@@ -235,7 +238,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     item: WorkoutExercise;
     index: number;
   }) => {
-    const variation = exerciseVariations.find((v) => v.id === item.variationId);
+    const variation = exerciseVariations.find((v: ExerciseVariation) => v.id === item.variationId);
 
     const display = variation
       ? getExerciseDisplay(variation, exercises, muscleGroups)
@@ -263,7 +266,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   return (
     <View style={globalStyles.container}>
       <Text variant="titleLarge" style={globalStyles.title}>
-        Treino
+        {workout.name}
       </Text>
 
       <FlatList
@@ -287,7 +290,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
         (() => {
           const exercise = workout.exercises[selectedExerciseIndex];
           const variation = exerciseVariations.find(
-            (v) => v.id === exercise.variationId,
+            (v: ExerciseVariation) => v.id === exercise.variationId,
           );
           const lastSets = getLastExerciseSets(exercise.variationId);
 
@@ -316,7 +319,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
           visible={exerciseModalVisible}
           onDismiss={handleBackToMuscleGroupModal}
           exercises={exercises.filter(
-            (ex) => ex.muscleGroupId === selectedMuscleGroup.id,
+            (ex: Exercise) => ex.muscleGroupId === selectedMuscleGroup.id,
           )}
           exerciseVariations={exerciseVariations}
           onSelectVariation={handleSelectVariation}

@@ -21,7 +21,7 @@ export const WorkoutsRoute = ({
 }: {
   navigation: Props["navigation"];
 }) => {
-  const { data, loading, addWorkout, removeWorkout } = useWorkoutContext();
+  const { workouts, loading, addWorkout, removeWorkout } = useWorkoutContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [workoutName, setWorkoutName] = useState("");
 
@@ -80,7 +80,7 @@ export const WorkoutsRoute = ({
   return (
     <View style={globalStyles.container}>
       <FlatList
-        data={[...data.workouts]
+        data={[...workouts]
           .filter((w) => !w.isDeleted) // 🔥 não mostra soft deleted
           .sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
