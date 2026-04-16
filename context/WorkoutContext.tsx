@@ -3,11 +3,19 @@ import { AppData } from "../models/AppData";
 import { Exercise } from "../models/Exercise";
 import { ExerciseVariation } from "../models/ExerciseVariation";
 import { MuscleGroup } from "../models/MuscleGroup";
+import { Workout } from "../models/Workout";
+import { WorkoutExercise } from "../models/WorkoutExercise";
+import { WorkoutSet } from "../models/WorkoutSet";
+import { WorkoutExecution } from "../models/WorkoutExecution";
 import { loadData, saveData } from "../services/storageService";
 import { mockExercises } from "../data/mockExercises";
 import { mockMuscleGroups } from "../data/mockMuscleGroups";
 import { mockVariations } from "../data/mockVariations";
 import { mockWorkout } from "../data/mockData";
+import {
+  validateProgression,
+  suggestReps,
+} from "../services/progressionService";
 
 const WorkoutContext = createContext<any>(null);
 
@@ -149,6 +157,193 @@ export const WorkoutProvider = ({
     }));
   };
 
+  // Funções para workouts
+  const addWorkout = (workout: Workout) => {
+    setAppData((prev) => ({
+      ...prev,
+      workouts: [...prev.workouts, workout],
+    }));
+  };
+
+  const addExerciseToWorkout = (
+    workoutId: string,
+    exercise: WorkoutExercise,
+  ) => {
+    setAppData((prev) => ({
+      ...prev,
+      workouts: prev.workouts.map((w) => {
+        if (w.id !== workoutId) return w;
+
+        // 🔒 valida duplicado
+        const alreadyExists = w.exercises.some(
+          (ex) => ex.variationId === exercise.variationId,
+        );
+
+        if (alreadyExists) {
+          console.log("⚠️ Exercício já existe no treino");
+          return w; // 🚫 não adiciona
+        }
+
+        return {
+          ...w,
+          exercises: [...w.exercises, exercise],
+        };
+      }),
+    }));
+  };
+
+  const updateExerciseSets = (
+    workoutId: string,
+    variationId: string,
+    workoutSets: WorkoutSet[],
+  ) => {
+    setAppData((prev) => ({
+      ...prev,
+      workouts: prev.workouts.map((w) => {
+        if (w.id !== workoutId) return w;
+
+        return {
+          ...w,
+          exercises: w.exercises.map((ex) =>
+            ex.variationId === variationId ? { ...ex, workoutSets } : ex,
+          ),
+        };
+      }),
+    }));
+  };
+
+  const removeExerciseFromWorkout = (
+    workoutId: string,
+    variationId: string,
+  ) => {
+    setAppData((prev) => ({
+      ...prev,
+      workouts: prev.workouts.map((w) => {
+        if (w.id !== workoutId) return w;
+
+        return {
+          ...w,
+          exercises: w.exercises.filter((ex) => ex.variationId !== variationId),
+        };
+      }),
+    }));
+  };
+
+  const moveExercise = (
+    workoutId: string,
+    fromIndex: number,
+    toIndex: number,
+  ) => {
+    setAppData((prev) => ({
+      ...prev,
+      workouts: prev.workouts.map((w) => {
+        if (w.id !== workoutId) return w;
+
+        const updated = [...w.exercises];
+        const [moved] = updated.splice(fromIndex, 1);
+        updated.splice(toIndex, 0, moved);
+
+        return {
+          ...w,
+          exercises: updated,
+        };
+      }),
+    }));
+  };
+
+  const removeWorkout = (workoutId: string) => {
+    setAppData((prev) => ({
+      ...prev,
+      workouts: prev.workouts
+        .map((w) => {
+          if (w.id !== workoutId) return w;
+
+          const hasExecution = w.exercises.some((ex) =>
+            ex.workoutSets.some((set) => set.reps > 0 || set.weight > 0),
+          );
+
+          // 🔥 Se já foi executado → soft delete
+          if (hasExecution) {
+            return {
+              ...w,
+              isDeleted: true,
+            };
+          }
+
+          // 🔥 Se não foi executado → remove de verdade
+          return null;
+        })
+        .filter(Boolean) as Workout[],
+    }));
+  };
+
+  const completeWorkout = (workoutId: string) => {
+    const now = new Date().toISOString();
+
+    setAppData((prev) => {
+      const workout = prev.workouts.find((w) => w.id === workoutId);
+      if (!workout) return prev;
+
+      const newExecutions: WorkoutExecution[] = workout.exercises
+        .filter((ex) =>
+          ex.workoutSets.some((set) => set.reps > 0 || set.weight > 0),
+        )
+        .map((ex) => ({
+          id: `${workoutId}-${ex.variationId}-${now}`,
+          variationId: ex.variationId,
+          workoutSets: ex.workoutSets.map((set) => ({
+            ...set,
+            performedAt: now,
+          })),
+          date: now,
+        }));
+
+      const updated = {
+        ...prev,
+        workoutExecutions: [...prev.workoutExecutions, ...newExecutions],
+        workouts: prev.workouts.map((w) => {
+          if (w.id !== workoutId) return w;
+
+          // Atualizar data do workout
+          return {
+            ...w,
+            date: now,
+          };
+        }),
+      };
+
+      return updated;
+    });
+  };
+
+  // Funções de inteligência
+  const getLastExerciseSets = (variationId: string): WorkoutSet[] => {
+    const sorted = [...appData.workoutExecutions]
+      .filter((exec) => exec.variationId === variationId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    if (sorted.length > 0) {
+      return sorted[0].workoutSets;
+    }
+
+    return [];
+  };
+
+  const checkProgression = (
+    variationId: string,
+    currentWorkoutSets: WorkoutSet[],
+  ) => {
+    const previousSets = getLastExerciseSets(variationId);
+
+    return validateProgression(previousSets, currentWorkoutSets);
+  };
+
+  const getSuggestedReps = (variationId: string, newWeight: number): number => {
+    const previousSets = getLastExerciseSets(variationId);
+
+    return suggestReps(previousSets, newWeight);
+  };
+
   // Helpers for muscleGroups
   const isNameTaken = (name: string, excludeId?: string): boolean => {
     return appData.muscleGroups.some(
@@ -189,6 +384,18 @@ export const WorkoutProvider = ({
     addExerciseVariation,
     updateExerciseVariation,
     removeExerciseVariation,
+    addWorkout,
+    addExerciseToWorkout,
+    updateExerciseSets,
+    removeExerciseFromWorkout,
+    moveExercise,
+    removeWorkout,
+    completeWorkout,
+
+    // Intelligence
+    checkProgression,
+    getSuggestedReps,
+    getLastExerciseSets,
 
     // Helpers
     isNameTaken,

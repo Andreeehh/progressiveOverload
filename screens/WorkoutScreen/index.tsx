@@ -24,7 +24,7 @@ import { ProgressionAnalysisModal } from "../../components/ProgressionAnalysisMo
 import { validateProgression } from "../../services/progressionService";
 import { ProgressionResult } from "../../models/Progression";
 import { styles } from "./styles";
-import { Workout } from '../../models/Workout';
+import { Workout } from "../../models/Workout";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Workout">;
 
@@ -91,7 +91,9 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
       typeof variation === "string" ? variation : variation.id;
     const selectedVariation =
       typeof variation === "string"
-        ? exerciseVariations.find((v: ExerciseVariation) => v.id === variationId)
+        ? exerciseVariations.find(
+            (v: ExerciseVariation) => v.id === variationId,
+          )
         : variation;
 
     if (!selectedVariation) return;
@@ -166,7 +168,7 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   };
 
   const allSetsFilled = workout.exercises.every((ex: WorkoutExercise) =>
-    ex.workoutSets.every((set: WorkoutSet) => set.reps > 0 && set.weight > 0),
+    ex.workoutSets.every((set: WorkoutSet) => set.reps > 0),
   );
 
   const handleSaveWorkout = () => {
@@ -238,7 +240,9 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
     item: WorkoutExercise;
     index: number;
   }) => {
-    const variation = exerciseVariations.find((v: ExerciseVariation) => v.id === item.variationId);
+    const variation = exerciseVariations.find(
+      (v: ExerciseVariation) => v.id === item.variationId,
+    );
 
     const display = variation
       ? getExerciseDisplay(variation, exercises, muscleGroups)
