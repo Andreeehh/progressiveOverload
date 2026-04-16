@@ -1,1 +1,1 @@
-export { ProgressionAnalysisModal } from './ProgressionAnalysisModal';
+export { ProgressionAnalysisModal } from "./ProgressionAnalysisModal";

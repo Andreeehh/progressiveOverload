@@ -51,7 +51,8 @@ export const WorkoutScreen = ({ route, navigation }: Props) => {
   const [selectedMuscleGroup, setSelectedMuscleGroup] =
     useState<MuscleGroup | null>(null);
   const [progressionModalVisible, setProgressionModalVisible] = useState(false);
-  const [progressionResult, setProgressionResult] = useState<ProgressionResult | null>(null);
+  const [progressionResult, setProgressionResult] =
+    useState<ProgressionResult | null>(null);
 
   const workout = data.workouts.find((w) => w.id === workoutId);
 
